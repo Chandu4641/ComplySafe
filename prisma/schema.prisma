@@ -1,0 +1,182 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Organization {
+  id                 String   @id @default(cuid())
+  name               String
+  industry           String?
+  region             String?
+  frameworksEnabled  String   @default("GDPR")
+  users              User[]
+  integrations       Integration[]
+  scans              Scan[]
+  policies           Policy[]
+  tasks              Task[]
+  evidence           Evidence[]
+  assets             Asset[]
+  sessions           Session[]
+  auditLogs          AuditLog[]
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String?
+  role      String   @default("member")
+  orgId     String
+  org       Organization @relation(fields: [orgId], references: [id])
+  sessions  Session[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Framework {
+  id          String   @id @default(cuid())
+  key         String   @unique
+  name        String
+  controls    Control[]
+}
+
+model Control {
+  id          String   @id @default(cuid())
+  frameworkId String
+  controlId   String
+  description String
+  framework   Framework @relation(fields: [frameworkId], references: [id])
+  findings    Finding[]
+  evidence    Evidence[]
+}
+
+model Integration {
+  id        String   @id @default(cuid())
+  orgId     String
+  type      String
+  status    String
+  lastSync  DateTime?
+  org       Organization @relation(fields: [orgId], references: [id])
+}
+
+model Asset {
+  id               String   @id @default(cuid())
+  orgId            String
+  type             String
+  name             String
+  owner            String?
+  dataClass        String?
+  tags             String?
+  org              Organization @relation(fields: [orgId], references: [id])
+  createdAt        DateTime @default(now())
+}
+
+model Scan {
+  id        String   @id @default(cuid())
+  orgId     String
+  type      String
+  status    String
+  sourceType String?
+  sourceUrl  String?
+  sourceName String?
+  riskScore  Float?
+  riskLevel  String?
+  startedAt DateTime @default(now())
+  endedAt   DateTime?
+  findings  Finding[]
+  org       Organization @relation(fields: [orgId], references: [id])
+}
+
+model Finding {
+  id        String   @id @default(cuid())
+  scanId    String
+  controlId String?
+  severity  String
+  status    String
+  summary   String
+  remediation String?
+  scan      Scan @relation(fields: [scanId], references: [id])
+  control   Control? @relation(fields: [controlId], references: [id])
+  tasks     Task[]
+  createdAt DateTime @default(now())
+}
+
+model Policy {
+  id        String   @id @default(cuid())
+  orgId     String
+  title     String
+  status    String
+  version   Int      @default(1)
+  generatedFrom String?
+  org       Organization @relation(fields: [orgId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Task {
+  id        String   @id @default(cuid())
+  orgId     String
+  findingId String?
+  title     String
+  status    String
+  dueDate   DateTime?
+  finding   Finding? @relation(fields: [findingId], references: [id])
+  org       Organization @relation(fields: [orgId], references: [id])
+}
+
+model Evidence {
+  id        String   @id @default(cuid())
+  orgId     String
+  controlId String?
+  source    String
+  fileRef   String?
+  status    String
+  control   Control? @relation(fields: [controlId], references: [id])
+  org       Organization @relation(fields: [orgId], references: [id])
+  createdAt DateTime @default(now())
+}
+
+model AuditExport {
+  id          String   @id @default(cuid())
+  orgId       String
+  frameworkId String
+  status      String
+  createdAt   DateTime @default(now())
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  userId    String
+  orgId     String
+  token     String   @unique
+  expiresAt DateTime
+  user      User @relation(fields: [userId], references: [id])
+  org       Organization @relation(fields: [orgId], references: [id])
+  createdAt DateTime @default(now())
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  orgId     String
+  actorId   String?
+  action    String
+  target    String?
+  createdAt DateTime @default(now())
+  org       Organization @relation(fields: [orgId], references: [id])
+}
+
+model ComplianceRule {
+  id          String   @id @default(cuid())
+  orgId       String?
+  framework   String
+  requirement String
+  keywords    String
+  severity    String
+  enabled     Boolean  @default(true)
+  createdAt   DateTime @default(now())
+}
