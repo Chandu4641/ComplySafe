@@ -24,3 +24,7 @@ Compliance automation platform: Scan → Detect → Generate → Fix → Prove.
 2. Content‑aware policy engine (GRC)
 3. Auto‑remediation layer
 4. Compliance proof dashboard
+
+## Release Gate
+- Phase 1 sign-off and validation criteria: `docs/phase1-signoff.md`
+- Branch protection settings for required checks: `docs/branch-protection.md`
