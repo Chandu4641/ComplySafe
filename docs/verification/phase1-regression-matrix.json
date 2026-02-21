@@ -1,0 +1,32 @@
+{
+  "phase": "Phase 1 - ISO 27001 Core",
+  "lastUpdated": "2026-02-21",
+  "owner": "engineering",
+  "suites": [
+    {
+      "suite": "Static integrity",
+      "checks": [
+        "ISO Annex A control catalog lock (A.5=37, A.6=8, A.7=14, A.8=34)",
+        "SoA PDF route serves application/pdf",
+        "Scheduler route supports cron header auth",
+        "No forbidden console logging in hardened files"
+      ]
+    },
+    {
+      "suite": "Runtime API",
+      "checks": [
+        "GET /api/system/verification returns tenant-safe payload",
+        "POST /api/audits/export enqueues export for enabled framework",
+        "GET /api/audits/export/pdf returns downloadable PDF"
+      ]
+    },
+    {
+      "suite": "Data integrity",
+      "checks": [
+        "Prisma schema validates",
+        "Risk-control links remain org-scoped",
+        "Evidence links remain org-scoped"
+      ]
+    }
+  ]
+}

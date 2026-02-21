@@ -10,6 +10,8 @@ on:
 jobs:
   release-gate:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: true
     env:
       DATABASE_URL: postgresql://user:password@localhost:5432/complysafe
       NEXT_PUBLIC_APP_NAME: ComplySafe
@@ -26,14 +28,25 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Prisma validate
+        run: npx prisma validate
+
       - name: Lint
         run: npm run lint
 
       - name: Build
         run: npm run build
 
-      - name: Prisma validate
-        run: npx prisma validate
-
       - name: Phase 1 static verifier
         run: npm run phase1:verify
+
+      - name: Phase 1 closure verifier
+        run: npm run phase1:closure -- --strict
+
+      - name: Upload Phase 1 verification artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase1-verification-evidence
+          path: |
+            docs/verification/phase1-verification.json
+            docs/verification/phase1-closure-status.json
