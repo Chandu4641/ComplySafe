@@ -123,10 +123,12 @@ function run() {
   const passed = results.filter((r) => r.pass).length;
   const total = results.length;
   const fullyComplete = passed === total;
+  const status = fullyComplete ? "closed" : "pending_runtime_validation";
 
   const report = {
     generatedAt: new Date().toISOString(),
     strict,
+    status,
     passed,
     total,
     completionPercent: Math.round((passed / total) * 100),
@@ -136,6 +138,20 @@ function run() {
 
   const outPath = path.join(root, "docs", "verification", "phase1-closure-status.json");
   fs.writeFileSync(outPath, `${JSON.stringify(report, null, 2)}\n`);
+  const mirrorPath = path.join(root, "docs", "phase1-closure-status.json");
+  const mirror = {
+    phase: "Phase 1 — ISO 27001 Core",
+    status,
+    updatedAt: report.generatedAt,
+    sourceOfTruth: "docs/verification/phase1-closure-status.json",
+    summary: {
+      fullyComplete: report.fullyComplete,
+      passed: report.passed,
+      total: report.total
+    },
+    blockers: report.results.filter((result) => !result.pass).flatMap((result) => result.blockers)
+  };
+  fs.writeFileSync(mirrorPath, `${JSON.stringify(mirror, null, 2)}\n`);
 
   for (const result of results) {
     const mark = result.pass ? "PASS" : "FAIL";
@@ -145,6 +161,7 @@ function run() {
     }
   }
   console.log(`Saved report: ${outPath}`);
+  console.log(`Saved mirror: ${mirrorPath}`);
 
   if (strict && !fullyComplete) {
     process.exit(1);
