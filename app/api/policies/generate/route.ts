@@ -1,3 +1,6 @@
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db/client";
 import { getSession } from "@/lib/auth/session";
@@ -12,9 +15,13 @@ export async function POST() {
       title: "Access Control Policy",
       status: "draft",
       version: 1,
-      generatedFrom: "GDPR:Art.32"
+      generatedFrom: "ISO27001:A.5.15"
     }
   });
 
   return NextResponse.json({ policyId: policy.id, status: "generated" });
+}
+
+export async function GET() {
+  return NextResponse.json({ ok: true, method: "GET", note: "Route is available" });
 }

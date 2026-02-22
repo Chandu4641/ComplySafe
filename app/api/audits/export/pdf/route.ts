@@ -1,9 +1,10 @@
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+
 import { NextResponse } from "next/server";
 import { getSession } from "@/lib/auth/session";
 import { getDashboardStats, getFindings, getRecentScans } from "@/lib/data/queries";
 import { PDFDocument, StandardFonts, rgb } from "pdf-lib";
-
-export const runtime = "nodejs";
 
 function wrapText(text: string, maxChars = 90) {
   const words = text.split(/\s+/);
@@ -85,7 +86,7 @@ export async function GET(request: Request) {
   let sy = 800;
   scansPage.drawText("Recent Scans", { x: 40, y: sy, size: 14, font: bold });
   sy -= 18;
-  scans.forEach((s) => {
+  scans.forEach((s: any) => {
     scansPage.drawText(`- ${s.sourceName} | ${s.level} | ${s.score}`, { x: 50, y: sy, size: 10, font });
     sy -= 14;
   });
@@ -94,7 +95,7 @@ export async function GET(request: Request) {
   let fy = 800;
   findingsPage.drawText("Top Findings", { x: 40, y: fy, size: 14, font: bold });
   fy -= 18;
-  findings.slice(0, 12).forEach((f) => {
+  findings.slice(0, 12).forEach((f: any) => {
     fy = drawLines(findingsPage, wrapText(`${f.id} | ${f.control} | ${f.severity} | ${f.status}`, 90), 50, fy, 10, font);
   });
 

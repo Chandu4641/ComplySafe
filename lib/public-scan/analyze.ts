@@ -360,7 +360,9 @@ export async function runPublicScan(
       ? allFrameworks
       : input.frameworks && input.frameworks.length > 0
       ? input.frameworks
-      : [input.framework ?? "GDPR"];
+      : input.framework
+      ? [input.framework]
+      : [allFrameworks[0]];
 
   const frameworkReports: FrameworkReport[] = frameworksApplied.map((key) => {
     const rules = RULESETS[key] ?? [];
@@ -397,7 +399,7 @@ export async function runPublicScan(
     disclaimer:
       "This assessment is based solely on publicly available information and does not constitute legal advice or certification.",
     frameworks_applied: frameworksApplied,
-    framework: primary?.framework ?? "GDPR",
+    framework: primary?.framework ?? frameworksApplied[0],
     checklist: primary?.checklist ?? [],
     gdpr: {
       applicable: gdprApplicable,

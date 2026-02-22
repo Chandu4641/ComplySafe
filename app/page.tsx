@@ -1,10 +1,17 @@
+import Image from "next/image";
+
 export default function HomePage() {
   return (
     <>
       <header className="container nav">
         <div className="logo">
           <span className="logo-mark">
-            <img src="/complysafe-logo.png" alt="ComplySafe logo" />
+            <Image
+              src="/complysafe-logo.png"
+              alt="ComplySafe logo"
+              width={32}
+              height={32}
+            />
           </span>
           <div className="logo-text">
             <div className="logo-title">ComplySafe</div>

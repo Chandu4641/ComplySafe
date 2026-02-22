@@ -1,9 +1,10 @@
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db/client";
 import { getSession } from "@/lib/auth/session";
 import { analyzeText, DEFAULT_RULES, Rule } from "@/lib/scanner/compliance";
-
-export const runtime = "nodejs";
 
 async function readFileAsText(file: File) {
   const buffer = Buffer.from(await file.arrayBuffer());
@@ -72,16 +73,14 @@ async function crawlUrl(url: string, depth: number, rateMs: number) {
 async function parseFile(file: File) {
   const name = file.name.toLowerCase();
   if (name.endsWith(".pdf")) {
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore - pdf-parse is added as a dependency
-    const pdfParse = (await import("pdf-parse")).default;
+    const pdfParseModule = await import("pdf-parse");
+    const pdfParse = (pdfParseModule as { default: (input: Buffer) => Promise<{ text?: string }> })
+      .default;
     const buffer = Buffer.from(await file.arrayBuffer());
     const data = await pdfParse(buffer);
     return data.text ?? "";
   }
   if (name.endsWith(".docx")) {
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore - mammoth is added as a dependency
     const mammoth = await import("mammoth");
     const buffer = Buffer.from(await file.arrayBuffer());
     const { value } = await mammoth.extractRawText({ buffer });
@@ -97,12 +96,12 @@ async function loadRules(orgId: string): Promise<Rule[]> {
       orderBy: { createdAt: "asc" }
     });
     if (rules.length === 0) return DEFAULT_RULES;
-    return rules.map((r) => ({
+    return rules.map((r: any) => ({
       id: r.framework,
       framework: r.framework,
       title: r.requirement.slice(0, 64),
       requirement: r.requirement,
-      keywords: r.keywords.split(",").map((k) => k.trim()).filter(Boolean),
+      keywords: r.keywords.split(",").map((k: string) => k.trim()).filter(Boolean),
       severity: r.severity as Rule["severity"],
       remediation: "Add or update policy text to address this requirement and provide evidence."
     }));
@@ -168,14 +167,14 @@ export async function POST(request: Request) {
       }
     });
 
-    const controlIds = analysis.findings.map((f) => f.controlId).filter(Boolean);
+    const controlIds = analysis.findings.map((f: any) => f.controlId).filter(Boolean);
     const controls = controlIds.length
       ? await prisma.control.findMany({
-          where: { controlId: { in: controlIds } },
+          where: { orgId: session.orgId, controlId: { in: controlIds } },
           select: { id: true, controlId: true }
         })
       : [];
-    const controlMap = new Map(controls.map((c) => [c.controlId, c.id]));
+    const controlMap = new Map(controls.map((c: { controlId: string; id: string }) => [c.controlId, c.id]));
 
     await prisma.finding.createMany({
       data: analysis.findings.map((f) => ({
@@ -199,4 +198,8 @@ export async function POST(request: Request) {
     const message = err instanceof Error ? err.message : "Scan failed";
     return NextResponse.json({ error: message }, { status: 500 });
   }
+}
+
+export async function GET() {
+  return NextResponse.json({ ok: true, method: "GET", note: "Route is available" });
 }

@@ -1,9 +1,10 @@
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db/client";
 import { getSession } from "@/lib/auth/session";
 import { PDFDocument, StandardFonts, rgb } from "pdf-lib";
-
-export const runtime = "nodejs";
 
 function wrapText(text: string, maxChars = 90) {
   const words = text.split(/\s+/);

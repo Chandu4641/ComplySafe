@@ -65,7 +65,7 @@ async function buildPublicScanPdf(result: any, logoBuffer?: Buffer) {
   y -= 16;
   const applied = (result.frameworks_applied && result.frameworks_applied.length > 0)
     ? result.frameworks_applied.join(", ")
-    : (result.framework ?? "GDPR");
+    : (result.framework ?? "N/A");
   page.drawText(`Frameworks: ${applied}`, { x: 40, y, size: 11, font });
   y -= 20;
   y = drawLines(page, wrapText(result.disclaimer ?? ""), 40, y, 9, font);
@@ -217,4 +217,8 @@ export async function POST(request: Request) {
     const message = err instanceof Error ? err.message : "PDF export failed";
     return NextResponse.json({ error: message }, { status: 500 });
   }
+}
+
+export async function GET() {
+  return NextResponse.json({ ok: true, method: "GET", note: "Route is available" });
 }

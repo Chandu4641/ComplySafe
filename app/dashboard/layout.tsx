@@ -1,4 +1,6 @@
 import { requireSession } from "@/lib/auth/guard";
+import { runMonitoringScheduler } from "@/lib/monitoring/scheduler";
+import Image from "next/image";
 
 export default async function DashboardLayout({
   children
@@ -6,12 +8,20 @@ export default async function DashboardLayout({
   children: React.ReactNode;
 }) {
   const session = await requireSession();
+  if (process.env.NODE_ENV === "production") {
+    await runMonitoringScheduler().catch(() => null);
+  }
   return (
     <div className="dashboard-shell">
       <aside className="sidebar">
         <div className="logo">
           <span className="logo-mark">
-            <img src="/complysafe-logo.png" alt="ComplySafe logo" />
+            <Image
+              src="/complysafe-logo.png"
+              alt="ComplySafe logo"
+              width={32}
+              height={32}
+            />
           </span>
           <div className="logo-text">
             <div className="logo-title">ComplySafe</div>

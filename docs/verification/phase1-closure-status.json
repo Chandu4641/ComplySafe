@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-02-21T15:14:36Z",
+  "generatedAt": "2026-02-21T20:22:45.490Z",
   "strict": true,
   "passed": 4,
   "total": 4,
@@ -9,13 +9,13 @@
     {
       "name": "Static verification gate",
       "pass": true,
-      "detail": "phase1-verification.json indicates full pass",
+      "detail": "phase1-verification.json: 5/5 checks passed",
       "blockers": []
     },
     {
       "name": "Regression matrix",
       "pass": true,
-      "detail": "Regression matrix is present and defines required suites/checks",
+      "detail": "3 suites and 10 checks defined",
       "blockers": []
     },
     {
@@ -27,7 +27,7 @@
     {
       "name": "CI sign-off evidence",
       "pass": true,
-      "detail": "Workflow includes strict closure gate and artifact upload",
+      "detail": "Workflow executes Phase 1 gate and publishes evidence artifacts",
       "blockers": []
     }
   ]

@@ -13,16 +13,28 @@ export default function OnboardingForm({
   const router = useRouter();
   const [industry, setIndustry] = useState("");
   const [region, setRegion] = useState("");
-  const [framework, setFramework] = useState("GDPR");
+  const [framework, setFramework] = useState("");
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
+    if (!framework) {
+      setError("Select a framework to continue.");
+      return;
+    }
+
     setLoading(true);
+    setError("");
     await fetch("/api/orgs", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ orgId, industry, region, frameworksEnabled: framework })
+    });
+    await fetch("/api/frameworks/select", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ frameworkKey: framework })
     });
     router.push("/dashboard");
   }
@@ -56,13 +68,11 @@ export default function OnboardingForm({
           value={framework}
           onChange={(e) => setFramework(e.target.value)}
         >
-          <option value="GDPR">GDPR</option>
-          <option value="DPDP">DPDP</option>
+          <option value="">Select framework</option>
           <option value="ISO27001">ISO 27001</option>
-          <option value="PCI_DSS">PCI DSS</option>
-          <option value="HIPAA">HIPAA</option>
         </select>
       </div>
+      {error ? <p style={{ color: "#b91c1c", marginTop: 8 }}>{error}</p> : null}
       <button className="cta" style={{ marginTop: 18 }} disabled={loading}>
         {loading ? "Saving..." : "Continue to Dashboard"}
       </button>

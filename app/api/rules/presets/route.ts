@@ -1,3 +1,6 @@
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db/client";
 import { getSession } from "@/lib/auth/session";
@@ -24,4 +27,8 @@ export async function POST() {
   });
 
   return NextResponse.json({ ok: true, created: DEFAULT_RULES.length });
+}
+
+export async function GET() {
+  return NextResponse.json({ ok: true, method: "GET", note: "Route is available" });
 }

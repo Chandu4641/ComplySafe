@@ -1,3 +1,6 @@
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db/client";
 import { createSession } from "@/lib/auth/session";
@@ -15,8 +18,16 @@ export async function POST(request: Request) {
     (await prisma.organization.findFirst({ where: { name: orgName } })) ??
     (await prisma.organization.create({ data: { name: orgName } }));
 
+  const existingByEmail = await prisma.user.findUnique({ where: { email } });
+  if (existingByEmail && existingByEmail.orgId !== org.id) {
+    return NextResponse.json(
+      { error: "This email is already assigned to another organization." },
+      { status: 403 }
+    );
+  }
+
   const user =
-    (await prisma.user.findUnique({ where: { email } })) ??
+    existingByEmail ??
     (await prisma.user.create({
       data: {
         email,
@@ -28,4 +39,8 @@ export async function POST(request: Request) {
   await createSession(user.id, org.id);
 
   return NextResponse.json({ ok: true });
+}
+
+export async function GET() {
+  return NextResponse.json({ ok: true, method: "GET", note: "Route is available" });
 }

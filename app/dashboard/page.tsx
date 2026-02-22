@@ -51,7 +51,7 @@ export default async function DashboardPage() {
                 </tr>
               </thead>
               <tbody>
-                {scans.map((s) => (
+                {scans.map((s: any) => (
                   <tr key={s.id}>
                     <td>{s.sourceName}</td>
                     <td>{s.type}</td>
@@ -94,7 +94,7 @@ export default async function DashboardPage() {
               </tr>
             </thead>
             <tbody>
-              {findings.map((f) => (
+              {findings.map((f: any) => (
                 <tr key={f.id}>
                   <td>{f.id}</td>
                   <td>{f.control}</td>

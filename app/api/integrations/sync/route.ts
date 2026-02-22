@@ -1,3 +1,6 @@
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+
 import { NextResponse } from "next/server";
 import { getSession } from "@/lib/auth/session";
 import { runIntegrationSync } from "@/lib/integrations/registry";
@@ -11,4 +14,8 @@ export async function POST(request: Request) {
   const result = await runIntegrationSync(type, session.orgId);
 
   return NextResponse.json({ ok: true, result });
+}
+
+export async function GET() {
+  return NextResponse.json({ ok: true, method: "GET", note: "Route is available" });
 }

@@ -1,9 +1,10 @@
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+
 import { NextResponse } from "next/server";
 import { getSession } from "@/lib/auth/session";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
-
-export const runtime = "nodejs";
 
 export async function GET() {
   const session = await getSession();
