@@ -15,10 +15,12 @@ All multi-framework deliverables are explicitly out of Phase 1 scope.
 - Cron config: `vercel.json`
 - Tenant verification endpoint: `app/api/system/verification/route.ts`
 - Automated static verifier: `scripts/verification/phase1/verify.js`
+- Automated regression verifier: `scripts/verification/phase1/regression.js`
 - Closure verifier: `scripts/verification/phase1/closure.js`
 - ISO catalog lock test: `scripts/tests/iso-catalog-lock.js`
 - CI gate workflow: `.github/workflows/phase1-release-gate.yml`
 - Regression matrix: `docs/verification/phase1-regression-matrix.json`
+- Regression report: `docs/verification/phase1-regression-report.json`
 - Internal audit record: `docs/verification/records/internal-audit.json`
 - Management review record: `docs/verification/records/management-review.json`
 - Closure status report: `docs/verification/phase1-closure-status.json`
@@ -28,6 +30,7 @@ All multi-framework deliverables are explicitly out of Phase 1 scope.
 - [ ] `npm run build` passes
 - [ ] `npx prisma validate` passes
 - [ ] `npm run phase1:verify` passes
+- [ ] `npm run phase1:regression` passes
 - [ ] `npm run phase1:closure` passes
 - [ ] CI workflow green
 - [ ] CI artifact `phase1-verification-evidence` published

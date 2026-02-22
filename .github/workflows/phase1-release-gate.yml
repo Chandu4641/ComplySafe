@@ -12,8 +12,22 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       fail-fast: true
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: complysafe
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U postgres"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
     env:
-      DATABASE_URL: postgresql://user:password@localhost:5432/complysafe
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/complysafe
       NEXT_PUBLIC_APP_NAME: ComplySafe
     steps:
       - name: Checkout
@@ -28,6 +42,9 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Prisma generate
+        run: npx prisma generate
+
       - name: Prisma validate
         run: npx prisma validate
 
@@ -40,6 +57,9 @@ jobs:
       - name: Phase 1 static verifier
         run: npm run phase1:verify
 
+      - name: Phase 1 regression verifier
+        run: npm run phase1:regression
+
       - name: Phase 1 closure verifier
         run: npm run phase1:closure -- --strict
 
@@ -47,6 +67,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: phase1-verification-evidence
-          path: |
-            docs/verification/phase1-verification.json
-            docs/verification/phase1-closure-status.json
+          path: docs/verification/

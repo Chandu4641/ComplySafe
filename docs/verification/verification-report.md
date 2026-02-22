@@ -66,4 +66,5 @@ Date: 2026-02-15
 
 ## 8. Notes
 - SoA exports are implemented at `GET /api/soa` for `json`, `csv`, and `pdf`.
+- Regression suite is codified in `docs/verification/phase1-regression-matrix.json` and executed by `scripts/verification/phase1/regression.js`.
 - Runtime validation (lint/build/migrate execution) depends on local Node/WSL runtime compatibility.

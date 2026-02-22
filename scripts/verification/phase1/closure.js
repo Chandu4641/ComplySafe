@@ -28,6 +28,7 @@ function run() {
 
   const verification = readJson("docs/verification/phase1-verification.json");
   const matrix = readJson("docs/verification/phase1-regression-matrix.json");
+  const regression = readJson("docs/verification/phase1-regression-report.json");
   const internalAudit = readJson("docs/verification/records/internal-audit.json");
   const managementReview = readJson("docs/verification/records/management-review.json");
   const workflow = readText(".github/workflows/phase1-release-gate.yml");
@@ -47,7 +48,10 @@ function run() {
   );
 
   const matrixCheckCount = Array.isArray(matrix?.suites)
-    ? matrix.suites.reduce((sum, suite) => sum + (Array.isArray(suite.checks) ? suite.checks.length : 0), 0)
+    ? matrix.suites.reduce((sum, suite) => {
+        const checks = Array.isArray(suite.checks) ? suite.checks : [];
+        return sum + checks.length;
+      }, 0)
     : 0;
   const hasRegressionMatrix = matrixCheckCount >= 10;
   results.push(
@@ -58,6 +62,18 @@ function run() {
         ? `${matrix?.suites?.length || 0} suites and ${matrixCheckCount} checks defined`
         : "Regression matrix missing or incomplete (<10 checks)",
       hasRegressionMatrix ? [] : ["Define at least 10 regression checks in docs/verification/phase1-regression-matrix.json"]
+    )
+  );
+
+  const regressionPass = !!regression && regression.passed === regression.total && regression.total >= 10;
+  results.push(
+    buildResult(
+      "Regression execution report",
+      regressionPass,
+      regressionPass
+        ? `phase1-regression-report.json: ${regression.passed}/${regression.total} checks passed`
+        : "phase1-regression-report.json missing or not fully passing",
+      regressionPass ? [] : ["Run npm run phase1:regression and commit updated report"]
     )
   );
 
@@ -84,6 +100,7 @@ function run() {
     "npm run lint",
     "npm run build",
     "npm run phase1:verify",
+    "npm run phase1:regression",
     "npm run phase1:closure",
     "actions/upload-artifact@v4"
   ];

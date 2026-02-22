@@ -13,6 +13,7 @@
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
     "phase1:verify": "node scripts/verification/phase1/verify.js",
+    "phase1:regression": "node scripts/verification/phase1/regression.js",
     "phase1:closure": "node scripts/verification/phase1/closure.js",
     "github:ready": "node scripts/github-ready/check.js"
   },
@@ -32,8 +33,8 @@
     "@types/node": "^20.14.15",
     "@types/react": "^18.2.0",
     "@types/react-dom": "^18.2.0",
-    "eslint": "^9.0.0",
-    "eslint-config-next": "^16.1.6",
+    "eslint": "^10.0.1",
+    "eslint-config-next": "^0.2.4",
     "prettier": "^3.8.1",
     "prisma": "^5.22.0",
     "typescript": "^5.6.2"
