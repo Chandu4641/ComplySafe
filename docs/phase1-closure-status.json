@@ -1,0 +1,13 @@
+{
+  "phase": "Phase 1 — ISO 27001 Core",
+  "status": "closed",
+  "closedAt": "2026-02-15",
+  "validatedBy": "windows_runtime",
+  "validationGates": {
+    "prisma_validate": "passed",
+    "lint": "passed",
+    "build": "passed",
+    "phase1_verify": "passed"
+  },
+  "releaseTag": "v1.0.0-phase1"
+}
