@@ -1,0 +1,32 @@
+{
+  "timestamp": "2026-02-21T20:22:45.504Z",
+  "passed": 5,
+  "total": 5,
+  "results": [
+    {
+      "check": "ISO Annex A control count",
+      "pass": true,
+      "detail": "counts: A.5=37, A.6=8, A.7=14, A.8=34, total=93"
+    },
+    {
+      "check": "SoA PDF binary response",
+      "pass": true,
+      "detail": "route contains PDF generation and application/pdf response"
+    },
+    {
+      "check": "No memory scheduler flags",
+      "pass": true,
+      "detail": "scheduler file no longer uses in-memory run guards"
+    },
+    {
+      "check": "Scheduler supports cron trigger",
+      "pass": true,
+      "detail": "route supports GET + cron header auth"
+    },
+    {
+      "check": "No console logs in hardened Phase 1 files",
+      "pass": true,
+      "detail": "checked critical Phase 1 files"
+    }
+  ]
+}
