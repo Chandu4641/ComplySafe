@@ -25,3 +25,11 @@
 
 ## Audit Export
 - `POST /api/audits/export`
+
+## Frameworks (Phase 2)
+- `GET /api/frameworks`
+- `POST /api/frameworks/select`
+- `GET /api/frameworks/mappings?frameworkKey=SOC2`
+- `GET /api/frameworks/report`
+- `POST /api/frameworks/scores`
+- `GET /api/frameworks/soc2/export?format=json|csv`

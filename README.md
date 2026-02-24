@@ -14,6 +14,7 @@ complysafe/
   prisma/                   # Database schema and migrations
   public/                   # Static frontend assets
   docs/                     # Product, architecture, verification, and release docs
+  lib/                      # Compatibility exports for framework/mapping/reporting modules
   scripts/                  # Verification and release utility scripts
 ```
 
@@ -54,6 +55,9 @@ Compatibility aliases are still available (`@/lib/*`, `@/types/*`) so existing i
 ```bash
 npm run lint
 npm run build
+npm run phase2:verify
+npm run phase2:regression
+npm run phase2:closure -- --strict
 npm run github:ready
 ```
 
@@ -75,4 +79,5 @@ npm run github:ready
 ## Release Gate
 
 - Phase 1 sign-off and validation criteria: `docs/verification/phase1-signoff.md`
+- Phase 2 sign-off and validation criteria: `docs/verification/phase2-signoff.md`
 - Branch protection settings for required checks: `docs/guides/branch-protection.md`

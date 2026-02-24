@@ -4,10 +4,12 @@ export const dynamic = "force-dynamic";
 import { NextResponse } from "next/server";
 import { getSession } from "@/backend/auth/session";
 import { prisma } from "@/backend/db/client";
+import { ensurePhase2FrameworkCatalogs } from "@/backend/frameworks/service";
 
 export async function GET() {
   const session = await getSession();
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  await ensurePhase2FrameworkCatalogs();
 
   const [frameworks, enabled] = await Promise.all([
     prisma.framework.findMany({ orderBy: { key: "asc" } }),

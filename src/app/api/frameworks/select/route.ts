@@ -3,7 +3,7 @@ export const dynamic = "force-dynamic";
 
 import { NextResponse } from "next/server";
 import { getSession } from "@/backend/auth/session";
-import { activateFrameworkForOrganization, ensureIsoFrameworkCatalog } from "@/backend/frameworks/service";
+import { activateFrameworkForOrganization, ensurePhase2FrameworkCatalogs } from "@/backend/frameworks/service";
 import { calculateComplianceScore } from "@/backend/compliance/score";
 import { assertAdmin } from "@/backend/auth/rbac";
 
@@ -18,18 +18,28 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
-  await ensureIsoFrameworkCatalog();
+  await ensurePhase2FrameworkCatalogs();
 
   const body = await request.json().catch(() => ({}));
-  const frameworkKey = String(body.frameworkKey ?? "").trim();
-  if (!frameworkKey) {
-    return NextResponse.json({ error: "frameworkKey is required" }, { status: 400 });
+  const frameworkKeysInput = Array.isArray(body.frameworkKeys)
+    ? body.frameworkKeys
+    : [body.frameworkKey];
+  const frameworkKeys = frameworkKeysInput
+    .map((key: unknown) => String(key ?? "").trim().toUpperCase())
+    .filter(Boolean);
+
+  if (!frameworkKeys.length) {
+    return NextResponse.json({ error: "frameworkKey or frameworkKeys[] is required" }, { status: 400 });
   }
 
   try {
-    const framework = await activateFrameworkForOrganization(session.orgId, frameworkKey);
-    const score = await calculateComplianceScore(session.orgId, framework.id);
-    return NextResponse.json({ framework, score, status: "activated" });
+    const activated = [];
+    for (const key of frameworkKeys) {
+      const framework = await activateFrameworkForOrganization(session.orgId, key);
+      const score = await calculateComplianceScore(session.orgId, framework.id);
+      activated.push({ framework, score });
+    }
+    return NextResponse.json({ activated, status: "activated" });
   } catch (error) {
     return NextResponse.json({ error: error instanceof Error ? error.message : "Activation failed" }, { status: 400 });
   }

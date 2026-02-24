@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/backend/db/client";
-import { ensureIsoFrameworkCatalog, activateFrameworkForOrganization } from "@/backend/frameworks/service";
+import { ensurePhase2FrameworkCatalogs, activateFrameworkForOrganization } from "@/backend/frameworks/service";
 import { calculateComplianceScore } from "@/backend/compliance/score";
 
 export async function POST() {
@@ -8,7 +8,8 @@ export async function POST() {
   const user = await prisma.user.create({
     data: { email: "demo@complysafe.io", role: "owner", orgId: org.id }
   });
-  const framework = await ensureIsoFrameworkCatalog();
+  const frameworks = await ensurePhase2FrameworkCatalogs();
+  const framework = frameworks.find((f) => f.key === "ISO27001") ?? frameworks[0];
   await activateFrameworkForOrganization(org.id, framework.key);
 
   const controls = await prisma.control.findMany({

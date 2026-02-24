@@ -1,0 +1,127 @@
+{
+  "phase": "Phase 2 - Multi-Framework Expansion",
+  "lastUpdated": "2026-02-24",
+  "owner": "engineering",
+  "suites": [
+    {
+      "suite": "Framework catalogs",
+      "checks": [
+        {
+          "id": "FC-001",
+          "description": "SOC 2 framework seed exists",
+          "type": "fileContainsAll",
+          "file": "src/backend/frameworks/soc2.ts",
+          "tokens": ["SOC2_TSC", "key: \"SOC2\"", "clauses"]
+        },
+        {
+          "id": "FC-002",
+          "description": "PCI-DSS framework seed exists",
+          "type": "fileContainsAll",
+          "file": "src/backend/frameworks/pci.ts",
+          "tokens": ["PCI_DSS_V4", "key: \"PCI_DSS\"", "clauses"]
+        },
+        {
+          "id": "FC-003",
+          "description": "HIPAA framework seed exists",
+          "type": "fileContainsAll",
+          "file": "src/backend/frameworks/hipaa.ts",
+          "tokens": ["HIPAA_SECURITY_RULE", "key: \"HIPAA_SECURITY\"", "clauses"]
+        },
+        {
+          "id": "FC-004",
+          "description": "Framework activation supports all Phase 2 catalogs",
+          "type": "fileContainsAll",
+          "file": "src/backend/frameworks/service.ts",
+          "tokens": ["ensurePhase2FrameworkCatalogs", "PHASE2_FRAMEWORK_CATALOGS", "activateFrameworkForOrganization", "controlFrameworkMapping.upsert"]
+        },
+        {
+          "id": "FC-005",
+          "description": "SOC2 criteria-based scoring service is implemented",
+          "type": "fileContainsAll",
+          "file": "src/backend/frameworks/soc2Scoring.ts",
+          "tokens": ["calculateSoc2CriteriaReadiness", "SOC2_CRITERIA_WEIGHTS", "overallReadinessPercent"]
+        }
+      ]
+    },
+    {
+      "suite": "Mappings and reporting",
+      "checks": [
+        {
+          "id": "MR-001",
+          "description": "Cross-framework mapping model is defined",
+          "type": "fileContainsAll",
+          "file": "prisma/schema.prisma",
+          "tokens": ["model CrossFrameworkMapping", "canonicalControlId", "sourceFrameworkKey", "targetFrameworkKey"]
+        },
+        {
+          "id": "MR-002",
+          "description": "Mapping service seeds canonical equivalence",
+          "type": "fileContainsAll",
+          "file": "src/backend/mappings/service.ts",
+          "tokens": ["ensureCrossFrameworkMappings", "crossFrameworkMapping.upsert", "canonicalControlId"]
+        },
+        {
+          "id": "MR-002B",
+          "description": "ISO and SOC2 mapping definitions exist in catalog",
+          "type": "fileContainsAll",
+          "file": "src/backend/mappings/catalog.ts",
+          "tokens": ["frameworkKey: \"ISO27001\"", "frameworkKey: \"SOC2\""]
+        },
+        {
+          "id": "MR-003",
+          "description": "Coverage reporting service computes per-framework metrics",
+          "type": "fileContainsAll",
+          "file": "src/backend/reporting/frameworkCoverage.ts",
+          "tokens": ["buildFrameworkCoverageReport", "perFramework", "crossFramework", "soc2ReadinessPercent"]
+        },
+        {
+          "id": "MR-004",
+          "description": "SOC2 reporting service provides readiness and ISO mapping coverage",
+          "type": "fileContainsAll",
+          "file": "src/backend/reporting/soc2Coverage.ts",
+          "tokens": ["buildSoc2CoverageReport", "isoSoc2Mappings", "overallReadinessPercent"]
+        }
+      ]
+    },
+    {
+      "suite": "APIs and release gate",
+      "checks": [
+        {
+          "id": "AR-001",
+          "description": "Framework selection API supports multi-framework activation",
+          "type": "fileContainsAll",
+          "file": "src/app/api/frameworks/select/route.ts",
+          "tokens": ["frameworkKeys", "activateFrameworkForOrganization", "calculateComplianceScore"]
+        },
+        {
+          "id": "AR-002",
+          "description": "Framework report API is available",
+          "type": "fileContainsAll",
+          "file": "src/app/api/frameworks/report/route.ts",
+          "tokens": ["buildFrameworkCoverageReport", "calculateComplianceScore"]
+        },
+        {
+          "id": "AR-003",
+          "description": "Framework mappings API is available",
+          "type": "fileContainsAll",
+          "file": "src/app/api/frameworks/mappings/route.ts",
+          "tokens": ["frameworkKey is required", "getFrameworkMappings"]
+        },
+        {
+          "id": "AR-003B",
+          "description": "SOC2 export endpoint supports JSON and CSV",
+          "type": "fileContainsAll",
+          "file": "src/app/api/frameworks/soc2/export/route.ts",
+          "tokens": ["buildSoc2CoverageReport", "format === \"csv\"", "readinessPercent"]
+        },
+        {
+          "id": "AR-004",
+          "description": "Phase 2 release gate workflow executes verification and closure",
+          "type": "fileContainsAll",
+          "file": ".github/workflows/phase2-release-gate.yml",
+          "tokens": ["npm run phase2:verify", "npm run phase2:regression", "npm run phase2:closure -- --strict", "actions/upload-artifact@v4"]
+        }
+      ]
+    }
+  ]
+}

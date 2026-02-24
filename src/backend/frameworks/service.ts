@@ -1,23 +1,26 @@
 import { prisma } from "@/backend/db/client";
 import { ISO_27001_2022 } from "./iso27001";
+import { PHASE2_FRAMEWORK_CATALOGS } from "./catalog";
+import type { FrameworkCatalog } from "./types";
+import { ensureCrossFrameworkMappings } from "@/backend/mappings/service";
 
-export async function ensureIsoFrameworkCatalog() {
+async function ensureFrameworkCatalog(catalog: FrameworkCatalog) {
   const framework = await prisma.framework.upsert({
-    where: { key: ISO_27001_2022.key },
+    where: { key: catalog.key },
     update: {
-      name: ISO_27001_2022.name,
-      version: ISO_27001_2022.version,
-      description: ISO_27001_2022.description
+      name: catalog.name,
+      version: catalog.version,
+      description: catalog.description
     },
     create: {
-      key: ISO_27001_2022.key,
-      name: ISO_27001_2022.name,
-      version: ISO_27001_2022.version,
-      description: ISO_27001_2022.description
+      key: catalog.key,
+      name: catalog.name,
+      version: catalog.version,
+      description: catalog.description
     }
   });
 
-  for (const clause of ISO_27001_2022.clauses) {
+  for (const clause of catalog.clauses) {
     await prisma.frameworkClause.upsert({
       where: {
         frameworkId_clauseCode: {
@@ -45,7 +48,22 @@ export async function ensureIsoFrameworkCatalog() {
   return framework;
 }
 
+export async function ensureIsoFrameworkCatalog() {
+  return ensureFrameworkCatalog(ISO_27001_2022);
+}
+
+export async function ensurePhase2FrameworkCatalogs() {
+  const frameworks = [];
+  for (const catalog of PHASE2_FRAMEWORK_CATALOGS) {
+    frameworks.push(await ensureFrameworkCatalog(catalog));
+  }
+  await ensureCrossFrameworkMappings();
+  return frameworks;
+}
+
 export async function activateFrameworkForOrganization(orgId: string, frameworkKey: string) {
+  await ensurePhase2FrameworkCatalogs();
+
   const framework = await prisma.framework.findUnique({ where: { key: frameworkKey } });
   if (!framework) {
     throw new Error(`Framework not found: ${frameworkKey}`);

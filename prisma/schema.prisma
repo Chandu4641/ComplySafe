@@ -454,6 +454,23 @@ model MonitoringIssue {
   @@unique([orgId, issueType, targetId], map: "orgId_issueType_targetId")
 }
 
+model CrossFrameworkMapping {
+  id                 String   @id @default(cuid())
+  canonicalControlId String
+  sourceFrameworkKey String
+  sourceClauseCode   String
+  targetFrameworkKey String
+  targetClauseCode   String
+  relationType       String   @default("equivalent")
+  notes              String?
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  @@unique([canonicalControlId, sourceFrameworkKey, sourceClauseCode, targetFrameworkKey, targetClauseCode])
+  @@index([sourceFrameworkKey, sourceClauseCode])
+  @@index([targetFrameworkKey, targetClauseCode])
+}
+
 model ComplianceRule {
   id          String   @id @default(cuid())
   orgId       String?
