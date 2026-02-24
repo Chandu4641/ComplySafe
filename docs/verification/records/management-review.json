@@ -1,0 +1,33 @@
+{
+  "recordType": "management_review",
+  "phase": "Phase 1 - ISO 27001 Core",
+  "cycle": "2026-Q1",
+  "status": "approved",
+  "chair": "Security Leadership",
+  "attendees": [
+    "Engineering",
+    "Compliance",
+    "Product"
+  ],
+  "inputs": [
+    "Internal audit result",
+    "Risk trend",
+    "Monitoring incidents",
+    "Evidence and control review cadence"
+  ],
+  "decisions": [
+    "Approve Phase 1 scope closure contingent on CI runtime gate success.",
+    "Proceed with Phase 3 reliability hardening next."
+  ],
+  "actions": [
+    {
+      "id": "MR-2026-Q1-ACT-001",
+      "action": "Publish CI gate artifact for each main branch run.",
+      "owner": "engineering",
+      "dueDate": "2026-02-21",
+      "status": "in_progress"
+    }
+  ],
+  "approvedAt": "2026-02-21T15:14:36Z",
+  "notes": "Management review approved for governance closure, pending CI execution evidence."
+}

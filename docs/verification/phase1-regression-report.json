@@ -1,0 +1,10 @@
+{
+  "generatedAt": "2026-02-22T00:00:00.000Z",
+  "phase": "Phase 1 - ISO 27001 Core",
+  "status": "pending_local_runtime",
+  "note": "Execution pending: local runtime in this environment cannot run Node/Next commands (WSL1 limitation). Run npm run phase1:regression in CI/WSL2 to generate final report.",
+  "passed": 0,
+  "total": 10,
+  "completionPercent": 0,
+  "results": []
+}

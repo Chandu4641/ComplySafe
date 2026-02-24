@@ -1,0 +1,17 @@
+{
+  "phase": "Phase 1 — ISO 27001 Core",
+  "status": "pending_runtime_validation",
+  "updatedAt": "2026-02-22T00:00:00.000Z",
+  "sourceOfTruth": "docs/verification/phase1-closure-status.json",
+  "summary": {
+    "fullyComplete": false,
+    "passed": 0,
+    "total": 5
+  },
+  "blockers": [
+    "Run npm run phase1:verify in CI/WSL2",
+    "Run npm run phase1:regression in CI/WSL2",
+    "Run npm run phase1:closure -- --strict",
+    "Publish CI artifact phase1-verification-evidence"
+  ]
+}
