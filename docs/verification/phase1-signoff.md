@@ -7,13 +7,13 @@ Phase 1 is unambiguously defined as ISO/IEC 27001 Automation Core (Production-Re
 All multi-framework deliverables are explicitly out of Phase 1 scope.
 
 ## Evidence
-- ISO catalog: `lib/frameworks/iso27001.ts`
-- SoA generator: `lib/soa/generator.ts`
-- SoA route (PDF): `app/api/soa/route.ts`
-- Scheduler core: `lib/monitoring/scheduler.ts`
-- Scheduler endpoint: `app/api/monitoring/scheduler/route.ts`
+- ISO catalog: `src/backend/frameworks/iso27001.ts`
+- SoA generator: `src/backend/soa/generator.ts`
+- SoA route (PDF): `src/app/api/soa/route.ts`
+- Scheduler core: `src/backend/monitoring/scheduler.ts`
+- Scheduler endpoint: `src/app/api/monitoring/scheduler/route.ts`
 - Cron config: `vercel.json`
-- Tenant verification endpoint: `app/api/system/verification/route.ts`
+- Tenant verification endpoint: `src/app/api/system/verification/route.ts`
 - Automated static verifier: `scripts/verification/phase1/verify.js`
 - Automated regression verifier: `scripts/verification/phase1/regression.js`
 - Closure verifier: `scripts/verification/phase1/closure.js`

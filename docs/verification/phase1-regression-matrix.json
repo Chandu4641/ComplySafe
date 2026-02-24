@@ -16,14 +16,14 @@
           "id": "SI-002",
           "description": "SoA route generates application/pdf output",
           "type": "fileContainsAll",
-          "file": "app/api/soa/route.ts",
+          "file": "src/app/api/soa/route.ts",
           "tokens": ["application/pdf", "PDFDocument"]
         },
         {
           "id": "SI-003",
           "description": "Scheduler route supports cron-triggered GET",
           "type": "fileContainsAll",
-          "file": "app/api/monitoring/scheduler/route.ts",
+          "file": "src/app/api/monitoring/scheduler/route.ts",
           "tokens": ["export async function GET", "x-vercel-cron"]
         },
         {
@@ -31,9 +31,9 @@
           "description": "Hardened Phase 1 files do not include console logging",
           "type": "filesDoNotContainAny",
           "files": [
-            "app/api/soa/route.ts",
-            "lib/monitoring/scheduler.ts",
-            "app/api/system/verification/route.ts"
+            "src/app/api/soa/route.ts",
+            "src/backend/monitoring/scheduler.ts",
+            "src/app/api/system/verification/route.ts"
           ],
           "tokens": ["console."]
         }
@@ -46,21 +46,21 @@
           "id": "RC-001",
           "description": "System verification endpoint is dynamic, Node runtime, and guarded by session",
           "type": "fileContainsAll",
-          "file": "app/api/system/verification/route.ts",
+          "file": "src/app/api/system/verification/route.ts",
           "tokens": ["runtime = \"nodejs\"", "dynamic = \"force-dynamic\"", "if (!session)"]
         },
         {
           "id": "RC-002",
           "description": "Audit export endpoint requires session and resolves enabled framework",
           "type": "fileContainsAll",
-          "file": "app/api/audits/export/route.ts",
+          "file": "src/app/api/audits/export/route.ts",
           "tokens": ["if (!session)", "getEnabledFrameworkForOrg"]
         },
         {
           "id": "RC-003",
           "description": "Audit export PDF endpoint enforces tenant-scoped export ownership",
           "type": "fileContainsAll",
-          "file": "app/api/audits/export/pdf/route.ts",
+          "file": "src/app/api/audits/export/pdf/route.ts",
           "tokens": ["if (!session)", "orgId: session.orgId", "application/pdf"]
         }
       ]

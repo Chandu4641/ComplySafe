@@ -16,7 +16,13 @@ function countQuotedArrayEntries(src, arrayName) {
 }
 
 function assertIsoCatalogLock(root = process.cwd()) {
-  const iso = read(root, "lib/frameworks/iso27001.ts");
+  const primary = path.join(root, "src/backend/frameworks/iso27001.ts");
+  const legacy = path.join(root, "lib/frameworks/iso27001.ts");
+  const isoPath = fs.existsSync(primary) ? "src/backend/frameworks/iso27001.ts" : "lib/frameworks/iso27001.ts";
+  if (!fs.existsSync(primary) && !fs.existsSync(legacy)) {
+    throw new Error("ISO catalog source not found (expected src/backend/frameworks/iso27001.ts or lib/frameworks/iso27001.ts)");
+  }
+  const iso = read(root, isoPath);
   const org = countQuotedArrayEntries(iso, "ORGANIZATIONAL_TITLES");
   const people = countQuotedArrayEntries(iso, "PEOPLE_TITLES");
   const physical = countQuotedArrayEntries(iso, "PHYSICAL_TITLES");

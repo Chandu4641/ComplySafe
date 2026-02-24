@@ -1,51 +1,41 @@
 {
-  "generatedAt": "2026-02-22T00:00:00.000Z",
+  "generatedAt": "2026-02-24T16:34:14.623Z",
   "strict": true,
-  "status": "pending_runtime_validation",
-  "passed": 0,
+  "status": "closed",
+  "passed": 5,
   "total": 5,
-  "completionPercent": 0,
-  "fullyComplete": false,
+  "completionPercent": 100,
+  "fullyComplete": true,
   "results": [
     {
       "name": "Static verification gate",
-      "pass": false,
-      "detail": "Pending runtime execution: npm run phase1:verify",
-      "blockers": [
-        "Run npm run phase1:verify in CI/WSL2"
-      ]
+      "pass": true,
+      "detail": "phase1-verification.json: 5/5 checks passed",
+      "blockers": []
     },
     {
       "name": "Regression matrix",
-      "pass": false,
-      "detail": "Pending runtime execution: npm run phase1:regression",
-      "blockers": [
-        "Run npm run phase1:regression in CI/WSL2"
-      ]
+      "pass": true,
+      "detail": "3 suites and 10 checks defined",
+      "blockers": []
     },
     {
       "name": "Regression execution report",
-      "pass": false,
-      "detail": "phase1-regression-report.json not finalized",
-      "blockers": [
-        "Generate phase1-regression-report.json from runtime execution"
-      ]
+      "pass": true,
+      "detail": "phase1-regression-report.json: 10/10 checks passed",
+      "blockers": []
     },
     {
       "name": "Enterprise audit workflow",
-      "pass": false,
-      "detail": "Pending runtime closure generation",
-      "blockers": [
-        "Run npm run phase1:closure -- --strict to produce audited status"
-      ]
+      "pass": true,
+      "detail": "Internal audit and management review are both approved",
+      "blockers": []
     },
     {
       "name": "CI sign-off evidence",
-      "pass": false,
-      "detail": "Pending CI run with artifact publication",
-      "blockers": [
-        "Run .github/workflows/phase1-release-gate.yml and publish phase1-verification-evidence"
-      ]
+      "pass": true,
+      "detail": "Workflow executes Phase 1 gate and publishes evidence artifacts",
+      "blockers": []
     }
   ]
 }

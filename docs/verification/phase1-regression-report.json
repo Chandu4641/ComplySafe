@@ -1,10 +1,80 @@
 {
-  "generatedAt": "2026-02-22T00:00:00.000Z",
+  "generatedAt": "2026-02-24T16:31:53.848Z",
+  "matrixPath": "docs/verification/phase1-regression-matrix.json",
   "phase": "Phase 1 - ISO 27001 Core",
-  "status": "pending_local_runtime",
-  "note": "Execution pending: local runtime in this environment cannot run Node/Next commands (WSL1 limitation). Run npm run phase1:regression in CI/WSL2 to generate final report.",
-  "passed": 0,
+  "passed": 10,
   "total": 10,
-  "completionPercent": 0,
-  "results": []
+  "completionPercent": 100,
+  "results": [
+    {
+      "suite": "Static integrity",
+      "id": "SI-001",
+      "description": "ISO Annex A control catalog lock enforces 93 controls",
+      "pass": true,
+      "detail": "Script exited 0: scripts/tests/iso-catalog-lock.js"
+    },
+    {
+      "suite": "Static integrity",
+      "id": "SI-002",
+      "description": "SoA route generates application/pdf output",
+      "pass": true,
+      "detail": "All tokens present in src/app/api/soa/route.ts"
+    },
+    {
+      "suite": "Static integrity",
+      "id": "SI-003",
+      "description": "Scheduler route supports cron-triggered GET",
+      "pass": true,
+      "detail": "All tokens present in src/app/api/monitoring/scheduler/route.ts"
+    },
+    {
+      "suite": "Static integrity",
+      "id": "SI-004",
+      "description": "Hardened Phase 1 files do not include console logging",
+      "pass": true,
+      "detail": "No forbidden tokens found"
+    },
+    {
+      "suite": "Runtime contract",
+      "id": "RC-001",
+      "description": "System verification endpoint is dynamic, Node runtime, and guarded by session",
+      "pass": true,
+      "detail": "All tokens present in src/app/api/system/verification/route.ts"
+    },
+    {
+      "suite": "Runtime contract",
+      "id": "RC-002",
+      "description": "Audit export endpoint requires session and resolves enabled framework",
+      "pass": true,
+      "detail": "All tokens present in src/app/api/audits/export/route.ts"
+    },
+    {
+      "suite": "Runtime contract",
+      "id": "RC-003",
+      "description": "Audit export PDF endpoint enforces tenant-scoped export ownership",
+      "pass": true,
+      "detail": "All tokens present in src/app/api/audits/export/pdf/route.ts"
+    },
+    {
+      "suite": "Data and governance",
+      "id": "DG-001",
+      "description": "Phase 1 release gate workflow includes build, verification, closure, and artifact upload",
+      "pass": true,
+      "detail": "All tokens present in .github/workflows/phase1-release-gate.yml"
+    },
+    {
+      "suite": "Data and governance",
+      "id": "DG-002",
+      "description": "Internal audit record is approved",
+      "pass": true,
+      "detail": "JSON fields match in docs/verification/records/internal-audit.json"
+    },
+    {
+      "suite": "Data and governance",
+      "id": "DG-003",
+      "description": "Management review record is approved",
+      "pass": true,
+      "detail": "JSON fields match in docs/verification/records/management-review.json"
+    }
+  ]
 }

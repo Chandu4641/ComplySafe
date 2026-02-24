@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-02-22T15:28:32.396Z",
+  "timestamp": "2026-02-24T16:21:49.963Z",
   "passed": 5,
   "total": 5,
   "results": [
@@ -11,22 +11,22 @@
     {
       "check": "SoA PDF binary response",
       "pass": true,
-      "detail": "route contains PDF generation and application/pdf response"
+      "detail": "src/app/api/soa/route.ts contains PDF generation and application/pdf response"
     },
     {
       "check": "No memory scheduler flags",
       "pass": true,
-      "detail": "scheduler file no longer uses in-memory run guards"
+      "detail": "src/backend/monitoring/scheduler.ts no longer uses in-memory run guards"
     },
     {
       "check": "Scheduler supports cron trigger",
       "pass": true,
-      "detail": "route supports GET + cron header auth"
+      "detail": "src/app/api/monitoring/scheduler/route.ts supports GET + cron header auth"
     },
     {
       "check": "No console logs in hardened Phase 1 files",
       "pass": true,
-      "detail": "checked critical Phase 1 files"
+      "detail": "checked src/app/api/soa/route.ts, src/backend/monitoring/scheduler.ts, src/app/api/system/verification/route.ts"
     }
   ]
 }

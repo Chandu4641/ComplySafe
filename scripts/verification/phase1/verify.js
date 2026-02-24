@@ -4,12 +4,20 @@ const { assertIsoCatalogLock } = require("../../tests/iso-catalog-lock");
 
 const root = process.cwd();
 
+function pickExisting(candidates, label) {
+  for (const rel of candidates) {
+    const abs = path.join(root, rel);
+    if (fs.existsSync(abs)) return rel;
+  }
+  throw new Error(`Missing required file for ${label}: ${candidates.join(" | ")}`);
+}
+
 function read(rel) {
   return fs.readFileSync(path.join(root, rel), "utf8");
 }
 
-function hasPattern(rel, pattern) {
-  const txt = read(rel);
+function hasPattern(text, pattern) {
+  const txt = text;
   return pattern.test(txt);
 }
 
@@ -31,34 +39,51 @@ function run() {
     detail: `counts: A.5=${lockCounts.org}, A.6=${lockCounts.people}, A.7=${lockCounts.physical}, A.8=${lockCounts.tech}, total=${lockCounts.total}`
   });
 
-  const soaRoute = read("app/api/soa/route.ts");
+  const soaRoutePath = pickExisting(
+    ["src/app/api/soa/route.ts", "app/api/soa/route.ts"],
+    "SoA route"
+  );
+  const soaRoute = read(soaRoutePath);
   results.push({
     check: "SoA PDF binary response",
     pass: /application\/pdf/.test(soaRoute) && /PDFDocument/.test(soaRoute),
-    detail: "route contains PDF generation and application/pdf response"
+    detail: `${soaRoutePath} contains PDF generation and application/pdf response`
   });
 
-  const scheduler = read("lib/monitoring/scheduler.ts");
+  const schedulerPath = pickExisting(
+    ["src/backend/monitoring/scheduler.ts", "lib/monitoring/scheduler.ts"],
+    "monitoring scheduler core"
+  );
+  const scheduler = read(schedulerPath);
   results.push({
     check: "No memory scheduler flags",
     pass: !/schedulerRunning|lastRunKey|runKeyForNow/.test(scheduler),
-    detail: "scheduler file no longer uses in-memory run guards"
+    detail: `${schedulerPath} no longer uses in-memory run guards`
   });
 
-  const schedulerRoute = read("app/api/monitoring/scheduler/route.ts");
+  const schedulerRoutePath = pickExisting(
+    ["src/app/api/monitoring/scheduler/route.ts", "app/api/monitoring/scheduler/route.ts"],
+    "monitoring scheduler route"
+  );
+  const schedulerRoute = read(schedulerRoutePath);
   results.push({
     check: "Scheduler supports cron trigger",
     pass: /x-vercel-cron/.test(schedulerRoute) && /export async function GET/.test(schedulerRoute),
-    detail: "route supports GET + cron header auth"
+    detail: `${schedulerRoutePath} supports GET + cron header auth`
   });
 
-  const noConsole = !hasPattern("app/api/soa/route.ts", /console\./) &&
-    !hasPattern("lib/monitoring/scheduler.ts", /console\./) &&
-    !hasPattern("app/api/system/verification/route.ts", /console\./);
+  const verificationRoutePath = pickExisting(
+    ["src/app/api/system/verification/route.ts", "app/api/system/verification/route.ts"],
+    "system verification route"
+  );
+  const verificationRoute = read(verificationRoutePath);
+  const noConsole = !hasPattern(soaRoute, /console\./) &&
+    !hasPattern(scheduler, /console\./) &&
+    !hasPattern(verificationRoute, /console\./);
   results.push({
     check: "No console logs in hardened Phase 1 files",
     pass: noConsole,
-    detail: "checked critical Phase 1 files"
+    detail: `checked ${soaRoutePath}, ${schedulerPath}, ${verificationRoutePath}`
   });
 
   const passCount = results.filter((r) => r.pass).length;

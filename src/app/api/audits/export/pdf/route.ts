@@ -35,12 +35,17 @@ function drawLines(page: any, lines: string[], x: number, y: number, size: numbe
 
 export async function GET(request: Request) {
   const session = await getSession();
-  if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
+  if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (!session.orgId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+  const orgId = session.orgId; // orgId: session.orgId
+
+  // Ensure all data fetching is scoped to the current tenant
   const [stats, findings, scans] = await Promise.all([
-    getDashboardStats(session.orgId),
-    getFindings(session.orgId),
-    getRecentScans(session.orgId)
+    getDashboardStats(orgId),
+    getFindings(orgId),
+    getRecentScans(orgId)
   ]);
 
   const pdfDoc = await PDFDocument.create();

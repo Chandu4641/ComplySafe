@@ -3,7 +3,7 @@
 Date: 2026-02-15
 
 ## 1. ISO Completeness
-- Annex A 2022 clause structure seeded from `lib/frameworks/iso27001.ts`.
+- Annex A 2022 clause structure seeded from `src/backend/frameworks/iso27001.ts`.
 - Expected controls: 93 (`ISO_ANNEX_A_CONTROL_COUNT`).
 - Activation seeds:
   - `Framework`
@@ -16,19 +16,19 @@ Date: 2026-02-15
 ## 2. Multi-tenant Enforcement
 - Risk, control, evidence, scans, and integrations queries scoped by `session.orgId`.
 - New routes enforce tenant checks before update/link actions:
-  - `app/api/risks/*`
-  - `app/api/risk-controls/route.ts`
-  - `app/api/controls/[id]/route.ts`
-  - `app/api/evidence/[id]/route.ts`
-  - `app/api/evidence/[id]/download/route.ts`
+  - `src/app/api/risks/*`
+  - `src/app/api/risk-controls/route.ts`
+  - `src/app/api/controls/[id]/route.ts`
+  - `src/app/api/evidence/[id]/route.ts`
+  - `src/app/api/evidence/[id]/download/route.ts`
 
 ## 3. Scheduler Execution Proof
-- Daily job: `lib/monitoring/daily.ts`.
+- Daily job: `src/backend/monitoring/daily.ts`.
 - Idempotent run key: `(orgId, runDate)` in `MonitoringRun`.
-- Scheduler orchestration: `lib/monitoring/scheduler.ts`.
+- Scheduler orchestration: `src/backend/monitoring/scheduler.ts`.
 - Trigger options:
   - secured endpoint: `POST /api/monitoring/scheduler`
-  - automatic production opportunistic trigger from `app/dashboard/layout.tsx`.
+  - automatic production opportunistic trigger from `src/app/dashboard/layout.tsx`.
 
 ## 4. No Hardcoded Framework Default
 - Removed default `GDPR` fallback from organization update.
@@ -36,7 +36,7 @@ Date: 2026-02-15
 - Audit export resolves enabled framework from DB.
 
 ## 5. Compliance Scoring Accuracy
-- Scoring service: `lib/compliance/score.ts`.
+- Scoring service: `src/backend/compliance/score.ts`.
 - Inputs included:
   - Controls implemented %
   - High risks mitigated %
