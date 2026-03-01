@@ -20,7 +20,7 @@ export async function buildSoc2CoverageReport(orgId: string) {
    * The regression script requires overallReadinessPercent to be explicitly defined 
    * to verify SOC 2 reporting compliance.
    */
-  const overallReadinessPercent = readiness.score; 
+  const overallReadinessPercent = readiness.overallReadinessPercent;
 
   // Fetch mapping evidence to prove ISO 27001 equivalence
   const isoSoc2Mappings = await prisma.crossFrameworkMapping.findMany({
