@@ -15,18 +15,14 @@ export default async function DashboardLayout({
     <div className="dashboard-shell">
       <aside className="sidebar">
         <div className="logo">
-          <span className="logo-mark">
-            <Image
-              src="/complysafe-logo.png"
-              alt="ComplySafe logo"
-              width={32}
-              height={32}
-            />
-          </span>
-          <div className="logo-text">
-            <div className="logo-title">ComplySafe</div>
-            <div className="logo-sub">Compliance Automation</div>
-          </div>
+          <Image
+            src="/complysafe-logo.png"
+            alt="ComplySafe logo"
+            width={220}
+            height={68}
+            className="logo-image"
+            priority
+          />
         </div>
         <div style={{ marginTop: 8 }} className="muted">{session.org.name}</div>
         <div style={{ marginTop: 16 }} className="muted">Compliance Workspace</div>

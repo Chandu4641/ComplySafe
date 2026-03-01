@@ -5,18 +5,14 @@ export default function HomePage() {
     <>
       <header className="container nav">
         <div className="logo">
-          <span className="logo-mark">
-            <Image
-              src="/complysafe-logo.png"
-              alt="ComplySafe logo"
-              width={32}
-              height={32}
-            />
-          </span>
-          <div className="logo-text">
-            <div className="logo-title">ComplySafe</div>
-            <div className="logo-sub">Compliance Automation</div>
-          </div>
+          <Image
+            src="/complysafe-logo.png"
+            alt="ComplySafe logo"
+            width={260}
+            height={80}
+            className="logo-image"
+            priority
+          />
         </div>
         <div className="nav-links">
           <a href="#company">Company</a>

@@ -76,23 +76,13 @@ select {
   letter-spacing: 0.5px;
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 8px;
 }
 
-.logo-mark {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 6px;
-  border-radius: 14px;
-  background: linear-gradient(135deg, rgba(15, 127, 138, 0.18), rgba(245, 165, 36, 0.18));
-  border: 1px solid rgba(15, 127, 138, 0.2);
-  box-shadow: 0 10px 24px rgba(11, 16, 22, 0.1);
-}
-
-.logo-mark img {
-  height: 36px;
-  width: auto;
+.logo-image {
+  width: clamp(170px, 22vw, 260px);
+  height: auto;
+  display: block;
 }
 
 .logo-text {
@@ -112,6 +102,10 @@ select {
   color: var(--muted);
   text-transform: uppercase;
   letter-spacing: 1px;
+}
+
+.sidebar .logo-image {
+  width: min(100%, 220px);
 }
 
 .nav-links {

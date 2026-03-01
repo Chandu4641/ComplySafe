@@ -39,20 +39,24 @@ async function buildPublicScanPdf(result: any, logoBuffer?: Buffer) {
   const page = pdfDoc.addPage([595, 842]);
   let y = 800;
   const headerY = 800;
+  let hasLogo = false;
 
   if (logoBuffer) {
     try {
       const img = await pdfDoc.embedPng(logoBuffer);
-      const dims = img.scale(0.3);
+      const scale = Math.min(170 / img.width, 52 / img.height);
+      const dims = img.scale(scale);
       page.drawImage(img, { x: 40, y: headerY - dims.height, width: dims.width, height: dims.height });
+      hasLogo = true;
     } catch {
       // ignore logo errors
     }
   }
 
-  const brandX = logoBuffer ? 180 : 40;
-  page.drawText("ComplySafe", { x: brandX, y: headerY - 10, size: 16, font: bold, color: rgb(0.06, 0.08, 0.11) });
-  page.drawText("Compliance Automation", { x: brandX, y: headerY - 26, size: 9, font, color: rgb(0.36, 0.4, 0.45) });
+  if (!hasLogo) {
+    page.drawText("ComplySafe", { x: 40, y: headerY - 10, size: 16, font: bold, color: rgb(0.06, 0.08, 0.11) });
+    page.drawText("Compliance Automation", { x: 40, y: headerY - 26, size: 9, font, color: rgb(0.36, 0.4, 0.45) });
+  }
 
   y -= 80;
   page.drawText("Public Website Compliance Assessment", { x: 40, y, size: 18, font: bold, color: rgb(0.11, 0.6, 0.66) });

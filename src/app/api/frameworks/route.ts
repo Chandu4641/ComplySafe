@@ -6,24 +6,46 @@ import { getSession } from "@/backend/auth/session";
 import { prisma } from "@/backend/db/client";
 import { ensurePhase2FrameworkCatalogs } from "@/backend/frameworks/service";
 
-export async function GET() {
+export async function GET(): Promise<NextResponse> {
   const session = await getSession();
-  if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+  if (!session) {
+    return NextResponse.json(
+      { error: "Unauthorized" },
+      { status: 401 }
+    );
+  }
+
+  // Ensure framework catalogs are seeded
   await ensurePhase2FrameworkCatalogs();
 
-  const [frameworks, enabled] = await Promise.all([
-    prisma.framework.findMany({ orderBy: { key: "asc" } }),
+  // Fetch frameworks + org enablement in parallel
+  const [frameworks, orgFrameworks] = await Promise.all([
+    prisma.framework.findMany({
+      orderBy: { key: "asc" }
+    }),
     prisma.organizationFramework.findMany({
       where: { organizationId: session.orgId },
-      select: { frameworkId: true, enabled: true }
+      select: {
+        frameworkId: true,
+        enabled: true
+      }
     })
   ]);
 
-  const enabledMap = new Map(enabled.map((x: { frameworkId: string; enabled: boolean }) => [x.frameworkId, x.enabled]));
+  // Build lookup map
+  const enabledMap = new Map<string, boolean>();
+  for (const entry of orgFrameworks) {
+    enabledMap.set(entry.frameworkId, entry.enabled);
+  }
+
+  // Attach enablement flag
+  const enrichedFrameworks = frameworks.map((fw) => ({
+    ...fw,
+    enabled: enabledMap.get(fw.id) ?? false
+  }));
+
   return NextResponse.json({
-    frameworks: frameworks.map((fw: { id: string }) => ({
-      ...fw,
-      enabled: enabledMap.get(fw.id) ?? false
-    }))
+    frameworks: enrichedFrameworks
   });
 }
