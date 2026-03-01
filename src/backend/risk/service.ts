@@ -1,11 +1,69 @@
 import { prisma } from "@/backend/db/client";
 import { writeAuditLog } from "@/backend/audit/service";
 import { calculateComplianceScore } from "@/backend/compliance/score";
+import { captureRiskTrendSnapshot } from "@/backend/monitoring/risk-drift";
 
 const clamp = (value: number) => Math.min(5, Math.max(1, Math.round(value)));
+const clampResidual = (value: number) => Math.min(25, Math.max(1, Math.round(value)));
 
 export function calculateRiskScore(likelihood: number, impact: number) {
   return clamp(likelihood) * clamp(impact);
+}
+
+async function calculateControlEffectivenessModifier(orgId: string, riskId: string) {
+  const effectiveness = await prisma.controlEffectiveness.findMany({
+    where: {
+      orgId,
+      control: {
+        riskLinks: {
+          some: {
+            riskId
+          }
+        }
+      }
+    },
+    select: { score: true }
+  });
+
+  if (effectiveness.length === 0) return 0;
+  const avg = effectiveness.reduce((sum, item) => sum + item.score, 0) / effectiveness.length;
+  return Math.round(avg * 5);
+}
+
+async function calculateTrendWeight(orgId: string, riskId: string) {
+  const snapshots = await prisma.riskTrendSnapshot.findMany({
+    where: { orgId, riskId },
+    orderBy: { capturedAt: "desc" },
+    take: 3
+  });
+
+  const ordered = snapshots.slice().reverse();
+  if (ordered.length < 3) return 0;
+
+  const delta = ordered[2].score - ordered[0].score;
+  if (delta <= 0) return 0;
+  return Math.min(5, delta);
+}
+
+async function calculateEnhancedResidualRisk(params: {
+  orgId: string;
+  riskId: string;
+  inherentRiskScore: number;
+}) {
+  const [controlEffectivenessModifier, trendWeight] = await Promise.all([
+    calculateControlEffectivenessModifier(params.orgId, params.riskId),
+    calculateTrendWeight(params.orgId, params.riskId)
+  ]);
+
+  const residualRiskScore = clampResidual(params.inherentRiskScore - controlEffectivenessModifier + trendWeight);
+
+  return {
+    residualRiskScore,
+    modifiers: {
+      controlEffectivenessModifier,
+      trendWeight
+    }
+  };
 }
 
 export async function createRisk(params: {
@@ -35,20 +93,39 @@ export async function createRisk(params: {
     }
   });
 
+  const enhanced = await calculateEnhancedResidualRisk({
+    orgId: params.orgId,
+    riskId: risk.id,
+    inherentRiskScore
+  });
+
+  const finalizedRisk =
+    enhanced.residualRiskScore === risk.residualRiskScore
+      ? risk
+      : await prisma.risk.update({
+          where: { id: risk.id },
+          data: {
+            residualRiskScore: enhanced.residualRiskScore
+          }
+        });
+
+  await captureRiskTrendSnapshot(params.orgId, finalizedRisk.id, finalizedRisk.residualRiskScore);
+
   await writeAuditLog({
     orgId: params.orgId,
     actorId: params.actorId,
     action: "risk.created",
     targetType: "Risk",
-    targetId: risk.id,
-    after: risk
+    targetId: finalizedRisk.id,
+    after: finalizedRisk,
+    metadata: enhanced.modifiers
   });
 
   if (params.frameworkId) {
     await calculateComplianceScore(params.orgId, params.frameworkId);
   }
 
-  return risk;
+  return finalizedRisk;
 }
 
 export async function updateRisk(params: {
@@ -76,8 +153,7 @@ export async function updateRisk(params: {
   const likelihood = params.patch.likelihood ?? current.likelihood;
   const impact = params.patch.impact ?? current.impact;
   const inherentRiskScore = calculateRiskScore(likelihood, impact);
-  const residualRiskScore =
-    params.patch.residualRiskScore == null ? current.residualRiskScore : Math.max(1, params.patch.residualRiskScore);
+  let residualRiskScore = params.patch.residualRiskScore == null ? current.residualRiskScore : clampResidual(params.patch.residualRiskScore);
 
   if (params.patch.status === "CLOSED") {
     const openControls = await prisma.riskControl.count({
@@ -103,14 +179,36 @@ export async function updateRisk(params: {
     }
   });
 
+  let finalRisk = next;
+  let modifiers: { controlEffectivenessModifier: number; trendWeight: number } | null = null;
+  if (params.patch.residualRiskScore == null) {
+    const enhanced = await calculateEnhancedResidualRisk({
+      orgId: params.orgId,
+      riskId: next.id,
+      inherentRiskScore
+    });
+    modifiers = enhanced.modifiers;
+    if (enhanced.residualRiskScore !== next.residualRiskScore) {
+      finalRisk = await prisma.risk.update({
+        where: { id: next.id },
+        data: {
+          residualRiskScore: enhanced.residualRiskScore
+        }
+      });
+    }
+  }
+
+  await captureRiskTrendSnapshot(params.orgId, finalRisk.id, finalRisk.residualRiskScore);
+
   await writeAuditLog({
     orgId: params.orgId,
     actorId: params.actorId,
     action: "risk.updated",
     targetType: "Risk",
-    targetId: next.id,
+    targetId: finalRisk.id,
     before: current,
-    after: next
+    after: finalRisk,
+    metadata: modifiers ?? undefined
   });
 
   const frameworkId = params.frameworkId ?? current.frameworkId ?? undefined;
@@ -118,7 +216,7 @@ export async function updateRisk(params: {
     await calculateComplianceScore(params.orgId, frameworkId);
   }
 
-  return next;
+  return finalRisk;
 }
 
 export async function linkRiskToControl(params: {

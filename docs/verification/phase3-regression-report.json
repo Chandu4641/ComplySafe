@@ -1,0 +1,115 @@
+{
+  "generatedAt": "2026-03-01T05:58:58.375Z",
+  "matrixPath": "docs/verification/phase3-regression-matrix.json",
+  "phase": "Phase 3 - Continuous Compliance Intelligence",
+  "passed": 15,
+  "total": 15,
+  "completionPercent": 100,
+  "results": [
+    {
+      "suite": "Data model and engines",
+      "id": "P3-DE-001",
+      "description": "Control health snapshot model exists with drift tracking",
+      "pass": true,
+      "detail": "All tokens present in prisma/schema.prisma"
+    },
+    {
+      "suite": "Data model and engines",
+      "id": "P3-DE-002",
+      "description": "Risk trend snapshot model exists",
+      "pass": true,
+      "detail": "All tokens present in prisma/schema.prisma"
+    },
+    {
+      "suite": "Data model and engines",
+      "id": "P3-DE-003",
+      "description": "Control effectiveness model exists",
+      "pass": true,
+      "detail": "All tokens present in prisma/schema.prisma"
+    },
+    {
+      "suite": "Data model and engines",
+      "id": "P3-DE-004",
+      "description": "Control health engine persists snapshots and effectiveness",
+      "pass": true,
+      "detail": "All tokens present in src/backend/monitoring/control-health.ts"
+    },
+    {
+      "suite": "Data model and engines",
+      "id": "P3-DE-005",
+      "description": "Risk drift engine captures trends and creates monitoring issue",
+      "pass": true,
+      "detail": "All tokens present in src/backend/monitoring/risk-drift.ts"
+    },
+    {
+      "suite": "Data model and engines",
+      "id": "P3-DE-006",
+      "description": "Risk scoring includes control effectiveness and trend weight",
+      "pass": true,
+      "detail": "All tokens present in src/backend/risk/service.ts"
+    },
+    {
+      "suite": "Audit collaboration and intelligence APIs",
+      "id": "P3-API-001",
+      "description": "Audit assignment endpoint is available",
+      "pass": true,
+      "detail": "All tokens present in src/app/api/audit/assign/route.ts"
+    },
+    {
+      "suite": "Audit collaboration and intelligence APIs",
+      "id": "P3-API-002",
+      "description": "Audit comment endpoint supports threaded comments",
+      "pass": true,
+      "detail": "All tokens present in src/app/api/audit/comment/route.ts"
+    },
+    {
+      "suite": "Audit collaboration and intelligence APIs",
+      "id": "P3-API-003",
+      "description": "Audit approval endpoint enforces lifecycle transitions",
+      "pass": true,
+      "detail": "All tokens present in src/app/api/audit/approve/route.ts"
+    },
+    {
+      "suite": "Audit collaboration and intelligence APIs",
+      "id": "P3-API-004",
+      "description": "Control health run endpoint is available",
+      "pass": true,
+      "detail": "All tokens present in src/app/api/monitoring/control-health/run/route.ts"
+    },
+    {
+      "suite": "Audit collaboration and intelligence APIs",
+      "id": "P3-API-005",
+      "description": "Intelligence endpoints are available",
+      "pass": true,
+      "detail": "All tokens present in src/backend/intelligence/service.ts"
+    },
+    {
+      "suite": "Regression simulations and release gate",
+      "id": "P3-RG-001",
+      "description": "Evidence expiry simulation degrades health",
+      "pass": true,
+      "detail": "Script exited 0: scripts/phase3/simulations/evidence-expiry.js"
+    },
+    {
+      "suite": "Regression simulations and release gate",
+      "id": "P3-RG-002",
+      "description": "Risk drift simulation identifies upward trend",
+      "pass": true,
+      "detail": "Script exited 0: scripts/phase3/simulations/risk-drift.js"
+    },
+    {
+      "suite": "Regression simulations and release gate",
+      "id": "P3-RG-003",
+      "description": "Control degradation simulation maps score to status",
+      "pass": true,
+      "detail": "Script exited 0: scripts/phase3/simulations/control-degradation.js"
+    },
+    {
+      "suite": "Regression simulations and release gate",
+      "id": "P3-RG-004",
+      "description": "Phase 3 release gate workflow executes verification and closure",
+      "pass": true,
+      "detail": "All tokens present in .github/workflows/phase3-release-gate.yml"
+    }
+  ]
+}

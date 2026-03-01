@@ -1,5 +1,7 @@
 import { prisma } from "@/backend/db/client";
 import { calculateComplianceScore } from "@/backend/compliance/score";
+import { runControlHealthMonitoring } from "@/backend/monitoring/control-health";
+import { runRiskDriftDetection } from "@/backend/monitoring/risk-drift";
 
 const startOfUtcDay = (date = new Date()) =>
   new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()));
@@ -121,6 +123,11 @@ export async function runDailyMonitoring(orgId: string) {
     }
   }
 
+  const [controlHealth, riskDrift] = await Promise.all([
+    runControlHealthMonitoring(orgId),
+    runRiskDriftDetection(orgId)
+  ]);
+
   await prisma.monitoringRun.update({
     where: { id: run.id },
     data: {
@@ -129,7 +136,10 @@ export async function runDailyMonitoring(orgId: string) {
       details: {
         frameworksScored: frameworks.length,
         evidenceChecked: evidence.length,
-        controlsChecked: controls.length
+        controlsChecked: controls.length,
+        controlHealthSnapshots: controlHealth.controlsEvaluated,
+        riskDriftAnalyzed: riskDrift.analyzed,
+        riskDriftDetected: riskDrift.driftCount
       }
     }
   });

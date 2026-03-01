@@ -18,6 +18,9 @@
     "phase2:verify": "node scripts/phase2/verify.js",
     "phase2:regression": "node scripts/phase2/regression.js",
     "phase2:closure": "node scripts/phase2/closure.js",
+    "phase3:verify": "node scripts/phase3/verify.js",
+    "phase3:regression": "node scripts/phase3/regression.js",
+    "phase3:closure": "node scripts/phase3/closure.js",
     "github:ready": "node scripts/github-ready/check.js"
   },
   "dependencies": {
