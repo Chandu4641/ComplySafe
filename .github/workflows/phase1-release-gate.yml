@@ -2,14 +2,18 @@ name: Phase 1 Release Gate
 
 on:
   push:
-    branches:
-      - main
-      - master
+    branches: [ main, master ]
   pull_request:
+
+concurrency:
+  group: phase1-release-gate-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   release-gate:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: true
 
     services:
       postgres:
