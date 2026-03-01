@@ -1,6 +1,23 @@
 import { prisma } from "@/backend/db/client";
 
-const pct = (num: number, den: number) => (den <= 0 ? 0 : Number(((num / den) * 100).toFixed(2)));
+type Soc2CriteriaRow = {
+  criteria: string;
+  controlsTotal: number;
+  controlsApplicable: number;
+  controlsImplemented: number;
+  readinessPercent: number;
+  evidenceCoverage: number;
+  weight: number;
+};
+
+type Soc2ReadinessResult = {
+  frameworkKey: "SOC2";
+  overallReadinessPercent: number;
+  criteriaReadiness: Soc2CriteriaRow[];
+};
+
+const pct = (num: number, den: number): number =>
+  den <= 0 ? 0 : Number(((num / den) * 100).toFixed(2));
 
 const SOC2_CRITERIA_WEIGHTS: Record<string, number> = {
   "Common Criteria": 0.45,
@@ -10,7 +27,10 @@ const SOC2_CRITERIA_WEIGHTS: Record<string, number> = {
   Privacy: 0.06
 };
 
-export async function calculateSoc2CriteriaReadiness(orgId: string, frameworkId: string) {
+export async function calculateSoc2CriteriaReadiness(
+  orgId: string,
+  frameworkId: string
+): Promise<Soc2ReadinessResult> {
   const controls = await prisma.control.findMany({
     where: { orgId, frameworkId },
     include: { applicability: true, evidence: true }
@@ -18,16 +38,22 @@ export async function calculateSoc2CriteriaReadiness(orgId: string, frameworkId:
 
   const bucket = new Map<
     string,
-    { total: number; applicable: number; implemented: number; validEvidence: number; readinessPercent: number }
+    { total: number; applicable: number; implemented: number; validEvidence: number }
   >();
 
   for (const control of controls) {
     const category = control.category || "Common Criteria";
+
     const rule = control.applicability.find((a) => a.orgId === orgId);
     const applicable = rule ? rule.applicable : true;
 
     if (!bucket.has(category)) {
-      bucket.set(category, { total: 0, applicable: 0, implemented: 0, validEvidence: 0, readinessPercent: 0 });
+      bucket.set(category, {
+        total: 0,
+        applicable: 0,
+        implemented: 0,
+        validEvidence: 0
+      });
     }
 
     const row = bucket.get(category)!;
@@ -36,27 +62,45 @@ export async function calculateSoc2CriteriaReadiness(orgId: string, frameworkId:
     if (!applicable) continue;
 
     row.applicable += 1;
-    if (control.status === "IMPLEMENTED") row.implemented += 1;
-    if (control.evidence.some((e) => e.status === "VALID")) row.validEvidence += 1;
+
+    if (control.status === "IMPLEMENTED") {
+      row.implemented += 1;
+    }
+
+    if (control.evidence.some((e) => e.status === "VALID")) {
+      row.validEvidence += 1;
+    }
   }
 
-  const criteriaReadiness = Array.from(bucket.entries()).map(([criteria, row]) => {
-    const readinessPercent = pct(row.implemented, row.applicable || 1);
-    const evidenceCoverage = pct(row.validEvidence, row.applicable || 1);
-    return {
-      criteria,
-      controlsTotal: row.total,
-      controlsApplicable: row.applicable,
-      controlsImplemented: row.implemented,
-      readinessPercent,
-      evidenceCoverage,
-      weight: SOC2_CRITERIA_WEIGHTS[criteria] ?? 0.02
-    };
-  });
+  const criteriaReadiness: Soc2CriteriaRow[] = Array.from(bucket.entries()).map(
+    ([criteria, row]) => {
+      const readinessPercent = pct(row.implemented, row.applicable);
+      const evidenceCoverage = pct(row.validEvidence, row.applicable);
 
-  const weightedReadiness = criteriaReadiness.reduce((sum, row) => sum + row.readinessPercent * row.weight, 0);
-  const normalizedWeight = criteriaReadiness.reduce((sum, row) => sum + row.weight, 0) || 1;
-  const overallReadinessPercent = Number((weightedReadiness / normalizedWeight).toFixed(2));
+      return {
+        criteria,
+        controlsTotal: row.total,
+        controlsApplicable: row.applicable,
+        controlsImplemented: row.implemented,
+        readinessPercent,
+        evidenceCoverage,
+        weight: SOC2_CRITERIA_WEIGHTS[criteria] ?? 0.02
+      };
+    }
+  );
+
+  // Weighted calculation
+  const totalWeight =
+    criteriaReadiness.reduce((sum, r) => sum + r.weight, 0) || 1;
+
+  const weightedSum = criteriaReadiness.reduce(
+    (sum, r) => sum + r.readinessPercent * r.weight,
+    0
+  );
+
+  const overallReadinessPercent = Number(
+    (weightedSum / totalWeight).toFixed(2)
+  );
 
   return {
     frameworkKey: "SOC2",
