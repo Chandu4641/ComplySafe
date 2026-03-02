@@ -27,6 +27,31 @@ const SOC2_CRITERIA_WEIGHTS: Record<string, number> = {
   Privacy: 0.06
 };
 
+const SOC2_CRITERIA_ORDER = [
+  "Common Criteria",
+  "Security",
+  "Availability",
+  "Processing Integrity",
+  "Privacy"
+] as const;
+
+const SOC2_CRITERIA_CANONICAL: Record<string, string> = {
+  "common criteria": "Common Criteria",
+  security: "Security",
+  availability: "Availability",
+  "processing integrity": "Processing Integrity",
+  privacy: "Privacy",
+  confidentiality: "Privacy"
+};
+
+function normalizeSoc2Category(category?: string | null): string {
+  const raw = (category || "").trim();
+  if (!raw) return "Common Criteria";
+
+  const normalized = SOC2_CRITERIA_CANONICAL[raw.toLowerCase()];
+  return normalized ?? raw;
+}
+
 export async function calculateSoc2CriteriaReadiness(
   orgId: string,
   frameworkId: string
@@ -41,8 +66,17 @@ export async function calculateSoc2CriteriaReadiness(
     { total: number; applicable: number; implemented: number; validEvidence: number }
   >();
 
+  for (const criteria of SOC2_CRITERIA_ORDER) {
+    bucket.set(criteria, {
+      total: 0,
+      applicable: 0,
+      implemented: 0,
+      validEvidence: 0
+    });
+  }
+
   for (const control of controls) {
-    const category = control.category || "Common Criteria";
+    const category = normalizeSoc2Category(control.category);
 
     const rule = control.applicability.find((a) => a.orgId === orgId);
     const applicable = rule ? rule.applicable : true;
@@ -84,10 +118,20 @@ export async function calculateSoc2CriteriaReadiness(
         controlsImplemented: row.implemented,
         readinessPercent,
         evidenceCoverage,
-        weight: SOC2_CRITERIA_WEIGHTS[criteria] ?? 0.02
+        weight: SOC2_CRITERIA_WEIGHTS[criteria] ?? 0
       };
     }
   );
+
+  criteriaReadiness.sort((a, b) => {
+    const ai = SOC2_CRITERIA_ORDER.indexOf(a.criteria as (typeof SOC2_CRITERIA_ORDER)[number]);
+    const bi = SOC2_CRITERIA_ORDER.indexOf(b.criteria as (typeof SOC2_CRITERIA_ORDER)[number]);
+
+    if (ai !== -1 && bi !== -1) return ai - bi;
+    if (ai !== -1) return -1;
+    if (bi !== -1) return 1;
+    return a.criteria.localeCompare(b.criteria);
+  });
 
   // Weighted calculation
   const totalWeight =
