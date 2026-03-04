@@ -1,0 +1,35 @@
+{
+  "generatedAt": "2026-02-24T19:27:43.735Z",
+  "strict": true,
+  "status": "closed",
+  "passed": 4,
+  "total": 4,
+  "completionPercent": 100,
+  "fullyComplete": true,
+  "results": [
+    {
+      "name": "Static verification gate",
+      "pass": true,
+      "detail": "phase2-verification.json: 14/14 checks passed",
+      "blockers": []
+    },
+    {
+      "name": "Regression matrix",
+      "pass": true,
+      "detail": "3 suites and 15 checks defined",
+      "blockers": []
+    },
+    {
+      "name": "Regression execution report",
+      "pass": true,
+      "detail": "phase2-regression-report.json: 15/15 checks passed",
+      "blockers": []
+    },
+    {
+      "name": "CI sign-off evidence",
+      "pass": true,
+      "detail": "Workflow executes Phase 2 gate and publishes evidence artifacts",
+      "blockers": []
+    }
+  ]
+}

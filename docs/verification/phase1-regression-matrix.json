@@ -1,0 +1,107 @@
+{
+  "phase": "Phase 1 - ISO 27001 Core",
+  "lastUpdated": "2026-02-22",
+  "owner": "engineering",
+  "suites": [
+    {
+      "suite": "Static integrity",
+      "checks": [
+        {
+          "id": "SI-001",
+          "description": "ISO Annex A control catalog lock enforces 93 controls",
+          "type": "scriptExitZero",
+          "script": "scripts/tests/iso-catalog-lock.js"
+        },
+        {
+          "id": "SI-002",
+          "description": "SoA route generates application/pdf output",
+          "type": "fileContainsAll",
+          "file": "src/app/api/soa/route.ts",
+          "tokens": ["application/pdf", "PDFDocument"]
+        },
+        {
+          "id": "SI-003",
+          "description": "Scheduler route supports cron-triggered GET",
+          "type": "fileContainsAll",
+          "file": "src/app/api/monitoring/scheduler/route.ts",
+          "tokens": ["export async function GET", "x-vercel-cron"]
+        },
+        {
+          "id": "SI-004",
+          "description": "Hardened Phase 1 files do not include console logging",
+          "type": "filesDoNotContainAny",
+          "files": [
+            "src/app/api/soa/route.ts",
+            "src/backend/monitoring/scheduler.ts",
+            "src/app/api/system/verification/route.ts"
+          ],
+          "tokens": ["console."]
+        }
+      ]
+    },
+    {
+      "suite": "Runtime contract",
+      "checks": [
+        {
+          "id": "RC-001",
+          "description": "System verification endpoint is dynamic, Node runtime, and guarded by session",
+          "type": "fileContainsAll",
+          "file": "src/app/api/system/verification/route.ts",
+          "tokens": ["runtime = \"nodejs\"", "dynamic = \"force-dynamic\"", "if (!session)"]
+        },
+        {
+          "id": "RC-002",
+          "description": "Audit export endpoint requires session and resolves enabled framework",
+          "type": "fileContainsAll",
+          "file": "src/app/api/audits/export/route.ts",
+          "tokens": ["if (!session)", "getEnabledFrameworkForOrg"]
+        },
+        {
+          "id": "RC-003",
+          "description": "Audit export PDF endpoint enforces tenant-scoped export ownership",
+          "type": "fileContainsAll",
+          "file": "src/app/api/audits/export/pdf/route.ts",
+          "tokens": ["if (!session)", "orgId: session.orgId", "application/pdf"]
+        }
+      ]
+    },
+    {
+      "suite": "Data and governance",
+      "checks": [
+        {
+          "id": "DG-001",
+          "description": "Phase 1 release gate workflow includes build, verification, closure, and artifact upload",
+          "type": "fileContainsAll",
+          "file": ".github/workflows/phase1-release-gate.yml",
+          "tokens": [
+            "npx prisma validate",
+            "npm run lint",
+            "npm run build",
+            "npm run phase1:verify",
+            "npm run phase1:regression",
+            "npm run phase1:closure -- --strict",
+            "actions/upload-artifact@v4"
+          ]
+        },
+        {
+          "id": "DG-002",
+          "description": "Internal audit record is approved",
+          "type": "jsonFieldsEqual",
+          "file": "docs/verification/records/internal-audit.json",
+          "fields": {
+            "status": "approved"
+          }
+        },
+        {
+          "id": "DG-003",
+          "description": "Management review record is approved",
+          "type": "jsonFieldsEqual",
+          "file": "docs/verification/records/management-review.json",
+          "fields": {
+            "status": "approved"
+          }
+        }
+      ]
+    }
+  ]
+}

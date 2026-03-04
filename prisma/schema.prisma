@@ -1,0 +1,594 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  owner
+  admin
+  compliance_manager
+  auditor
+  member
+}
+
+enum ControlStatus {
+  NOT_IMPLEMENTED
+  IN_PROGRESS
+  PARTIAL
+  IMPLEMENTED
+  NOT_APPLICABLE
+}
+
+enum RiskStatus {
+  OPEN
+  IN_TREATMENT
+  MITIGATED
+  ACCEPTED
+  CLOSED
+}
+
+enum EvidenceStatus {
+  VALID
+  EXPIRED
+  MISSING
+}
+
+enum ReviewFrequency {
+  MONTHLY
+  QUARTERLY
+  SEMI_ANNUAL
+  ANNUAL
+}
+
+enum ControlHealthStatus {
+  HEALTHY
+  DEGRADED
+  FAILED
+}
+
+enum AuditAssignmentStatus {
+  OPEN
+  IN_REVIEW
+  APPROVED
+  REJECTED
+}
+
+model Organization {
+  id                String   @id @default(cuid())
+  name              String
+  industry          String?
+  region            String?
+  frameworksEnabled String   @default("")
+
+  users              User[]
+  integrations       Integration[]
+  scans              Scan[]
+  policies           Policy[]
+  tasks              Task[]
+  evidence           Evidence[]
+  assets             Asset[]
+  sessions           Session[]
+  auditLogs          AuditLog[]
+  controls           Control[]
+  risks              Risk[]
+  organizationLinks  OrganizationFramework[]
+  complianceScores   ComplianceScore[]
+  monitoringRuns     MonitoringRun[]
+  monitoringIssues   MonitoringIssue[]
+  riskControls       RiskControl[]
+  auditExports       AuditExport[]
+  controlApplicabilities ControlApplicability[]   // ✅ FIX ADDED
+  controlHealthSnapshots ControlHealthSnapshot[]
+  riskTrendSnapshots     RiskTrendSnapshot[]
+  controlEffectivenesses ControlEffectiveness[]
+  auditAssignments       AuditAssignment[]
+  auditComments          AuditComment[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model User {
+  id       String   @id @default(cuid())
+  email    String   @unique
+  name     String?
+  role     UserRole @default(member)
+  orgId    String
+
+  org      Organization @relation(fields: [orgId], references: [id])
+  sessions Session[]
+  authoredAuditComments  AuditComment[]    @relation("AuditCommentAuthor")
+  assignedAuditAssignments AuditAssignment[] @relation("AuditAssignmentAssignee")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Framework {
+  id          String   @id @default(cuid())
+  key         String   @unique
+  name        String
+  version     String?
+  description String?
+
+  controls         Control[]
+  clauses          FrameworkClause[]
+  controlMappings  ControlFrameworkMapping[]
+  riskMappings     RiskFrameworkMapping[]
+  organizations    OrganizationFramework[]
+  complianceScores ComplianceScore[]
+  risks            Risk[]
+  auditExports     AuditExport[]
+}
+
+model FrameworkClause {
+  id                String  @id @default(cuid())
+  frameworkId       String
+  clauseCode        String
+  title             String
+  description       String?
+  category          String?
+  defaultApplicable Boolean @default(true)
+
+  framework        Framework                @relation(fields: [frameworkId], references: [id])
+  controlMappings  ControlFrameworkMapping[]
+  riskMappings     RiskFrameworkMapping[]
+
+  @@unique([frameworkId, clauseCode])
+  @@index([frameworkId])
+}
+
+model OrganizationFramework {
+  id             String  @id @default(cuid())
+  organizationId String
+  frameworkId    String
+  enabled        Boolean @default(false)
+  activatedAt    DateTime?
+
+  organization Organization @relation(fields: [organizationId], references: [id])
+  framework    Framework    @relation(fields: [frameworkId], references: [id])
+
+  @@unique([organizationId, frameworkId])
+  @@index([organizationId])
+}
+
+model Control {
+  id                String        @id @default(cuid())
+  orgId             String
+  frameworkId       String
+  controlId         String
+  title             String?
+  description       String
+  category          String?
+  status            ControlStatus @default(NOT_IMPLEMENTED)
+  owner             String?
+  reviewDate        DateTime?
+  defaultApplicable Boolean       @default(true)
+
+  org             Organization            @relation(fields: [orgId], references: [id])
+  framework       Framework               @relation(fields: [frameworkId], references: [id])
+  findings        Finding[]
+  evidence        Evidence[]
+  riskLinks       RiskControl[]
+  mappings        ControlFrameworkMapping[]
+  applicability   ControlApplicability[]
+  healthSnapshots ControlHealthSnapshot[]
+  effectiveness   ControlEffectiveness[]
+  auditAssignments AuditAssignment[]
+
+  @@unique([orgId, frameworkId, controlId])
+  @@index([orgId])
+  @@index([frameworkId])
+}
+
+model ControlFrameworkMapping {
+  id                   String @id @default(cuid())
+  controlId            String
+  frameworkId          String
+  clauseId             String
+  requirementReference String?
+
+  control   Control         @relation(fields: [controlId], references: [id])
+  framework Framework       @relation(fields: [frameworkId], references: [id])
+  clause    FrameworkClause @relation(fields: [clauseId], references: [id])
+
+  @@unique([controlId, frameworkId, clauseId])
+  @@index([frameworkId])
+}
+
+model Risk {
+  id                String     @id @default(cuid())
+  orgId             String
+  frameworkId       String?
+  assetId           String?
+  title             String
+  description       String?
+  likelihood        Int
+  impact            Int
+  inherentRiskScore Int
+  residualRiskScore Int
+  status            RiskStatus @default(OPEN)
+  owner             String?
+  acceptedReason    String?
+  reviewedAt        DateTime?
+  nextReviewAt      DateTime?
+
+  org       Organization @relation(fields: [orgId], references: [id])
+  framework Framework?   @relation(fields: [frameworkId], references: [id])
+  asset     Asset?       @relation(fields: [assetId], references: [id])
+  controls  RiskControl[]
+  evidence  Evidence[]
+  mappings  RiskFrameworkMapping[]
+  trendSnapshots  RiskTrendSnapshot[]
+  auditAssignments AuditAssignment[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([orgId])
+  @@index([frameworkId])
+}
+
+model RiskControl {
+  id        String @id @default(cuid())
+  orgId     String
+  riskId    String
+  controlId String
+
+  org     Organization @relation(fields: [orgId], references: [id])
+  risk    Risk         @relation(fields: [riskId], references: [id])
+  control Control      @relation(fields: [controlId], references: [id])
+
+  @@unique([riskId, controlId])
+  @@index([orgId])
+}
+
+model RiskFrameworkMapping {
+  id                   String @id @default(cuid())
+  riskId               String
+  frameworkId          String
+  clauseId             String?
+  requirementReference String?
+
+  risk      Risk            @relation(fields: [riskId], references: [id])
+  framework Framework       @relation(fields: [frameworkId], references: [id])
+  clause    FrameworkClause? @relation(fields: [clauseId], references: [id])
+
+  @@unique([riskId, frameworkId, clauseId])
+  @@index([frameworkId])
+}
+
+model Integration {
+  id       String   @id @default(cuid())
+  orgId    String
+  type     String
+  status   String
+  lastSync DateTime?
+
+  org Organization @relation(fields: [orgId], references: [id])
+}
+
+model Asset {
+  id        String @id @default(cuid())
+  orgId     String
+  type      String
+  name      String
+  owner     String?
+  dataClass String?
+  tags      String?
+
+  org   Organization @relation(fields: [orgId], references: [id])
+  risks Risk[]
+
+  createdAt DateTime @default(now())
+}
+
+model Scan {
+  id         String   @id @default(cuid())
+  orgId      String
+  type       String
+  status     String
+  sourceType String?
+  sourceUrl  String?
+  sourceName String?
+  riskScore  Float?
+  riskLevel  String?
+  startedAt  DateTime @default(now())
+  endedAt    DateTime?
+
+  findings Finding[]
+  org      Organization @relation(fields: [orgId], references: [id])
+}
+
+model Finding {
+  id          String  @id @default(cuid())
+  scanId      String
+  controlId   String?
+  severity    String
+  status      String
+  summary     String
+  remediation String?
+
+  scan    Scan     @relation(fields: [scanId], references: [id])
+  control Control? @relation(fields: [controlId], references: [id])
+  tasks   Task[]
+
+  createdAt DateTime @default(now())
+}
+
+model Policy {
+  id            String   @id @default(cuid())
+  orgId         String
+  title         String
+  status        String
+  version       Int      @default(1)
+  generatedFrom String?
+
+  org Organization @relation(fields: [orgId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Task {
+  id        String   @id @default(cuid())
+  orgId     String
+  findingId String?
+  title     String
+  status    String
+  dueDate   DateTime?
+
+  finding Finding? @relation(fields: [findingId], references: [id])
+  org     Organization @relation(fields: [orgId], references: [id])
+}
+
+model Evidence {
+  id              String         @id @default(cuid())
+  orgId           String
+  controlId       String?
+  riskId          String?
+  source          String
+  fileRef         String?
+  uploadedBy      String?
+  uploadedAt      DateTime       @default(now())
+  status          EvidenceStatus @default(VALID)
+  version         Int            @default(1)
+  expiresAt       DateTime?
+  reviewFrequency ReviewFrequency @default(QUARTERLY)
+  lastReviewedAt  DateTime?
+  downloadCount   Int            @default(0)
+
+  control Control?      @relation(fields: [controlId], references: [id])
+  risk    Risk?         @relation(fields: [riskId], references: [id])
+  org     Organization  @relation(fields: [orgId], references: [id])
+
+  createdAt DateTime @default(now())
+
+  @@index([orgId])
+  @@index([expiresAt])
+}
+
+model ControlApplicability {
+  id            String  @id @default(cuid())
+  orgId         String
+  controlId     String
+  applicable    Boolean @default(true)
+  justification String?
+
+  org     Organization @relation(fields: [orgId], references: [id])
+  control Control      @relation(fields: [controlId], references: [id])
+
+  @@unique([orgId, controlId])
+}
+
+model ComplianceScore {
+  id                 String   @id @default(cuid())
+  orgId              String
+  frameworkId        String
+  controlCompletion  Float
+  riskMitigation     Float
+  evidenceCoverage   Float
+  overdueControls    Float
+  overallScore       Float
+  calculatedAt       DateTime @default(now())
+
+  organization Organization @relation(fields: [orgId], references: [id])
+  framework    Framework    @relation(fields: [frameworkId], references: [id])
+
+  @@unique([orgId, frameworkId])
+  @@index([orgId])
+}
+
+model AuditExport {
+  id          String   @id @default(cuid())
+  orgId       String
+  frameworkId String
+  status      String
+
+  org       Organization @relation(fields: [orgId], references: [id])
+  framework Framework    @relation(fields: [frameworkId], references: [id])
+
+  createdAt DateTime @default(now())
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  userId    String
+  orgId     String
+  token     String   @unique
+  expiresAt DateTime
+
+  user User @relation(fields: [userId], references: [id])
+  org  Organization @relation(fields: [orgId], references: [id])
+
+  createdAt DateTime @default(now())
+}
+
+model AuditLog {
+  id         String   @id @default(cuid())
+  orgId      String
+  actorId    String?
+  action     String
+  targetType String?
+  targetId   String?
+  before     Json?
+  after      Json?
+  metadata   Json?
+  createdAt  DateTime @default(now())
+
+  org Organization @relation(fields: [orgId], references: [id])
+
+  @@index([orgId])
+  @@index([targetType, targetId])
+}
+
+model MonitoringRun {
+  id         String   @id @default(cuid())
+  orgId      String
+  runDate    DateTime
+  status     String
+  startedAt  DateTime @default(now())
+  finishedAt DateTime?
+  details    Json?
+
+  org Organization @relation(fields: [orgId], references: [id])
+
+  @@unique([orgId, runDate])
+  @@index([runDate])
+}
+
+model MonitoringIssue {
+  id         String   @id @default(cuid())
+  orgId      String
+  issueType  String
+  title      String
+  severity   String
+  targetType String?
+  targetId   String?
+  isResolved Boolean  @default(false)
+  createdAt  DateTime @default(now())
+  resolvedAt DateTime?
+
+  org Organization @relation(fields: [orgId], references: [id])
+
+  @@index([orgId, isResolved])
+  @@unique([orgId, issueType, targetId], map: "orgId_issueType_targetId")
+}
+
+model CrossFrameworkMapping {
+  id                 String   @id @default(cuid())
+  canonicalControlId String
+  sourceFrameworkKey String
+  sourceClauseCode   String
+  targetFrameworkKey String
+  targetClauseCode   String
+  relationType       String   @default("equivalent")
+  notes              String?
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  @@unique([canonicalControlId, sourceFrameworkKey, sourceClauseCode, targetFrameworkKey, targetClauseCode])
+  @@index([sourceFrameworkKey, sourceClauseCode])
+  @@index([targetFrameworkKey, targetClauseCode])
+}
+
+model ComplianceRule {
+  id          String   @id @default(cuid())
+  orgId       String?
+  framework   String
+  requirement String
+  keywords    String
+  severity    String
+  enabled     Boolean  @default(true)
+  createdAt   DateTime @default(now())
+}
+
+model ControlHealthSnapshot {
+  id           String              @id @default(cuid())
+  orgId        String
+  controlId    String
+  healthScore  Float
+  status       ControlHealthStatus
+  driftDetected Boolean            @default(false)
+  calculatedAt DateTime            @default(now())
+
+  org     Organization @relation(fields: [orgId], references: [id])
+  control Control      @relation(fields: [controlId], references: [id])
+
+  @@index([orgId, calculatedAt])
+  @@index([orgId, controlId, calculatedAt])
+}
+
+model RiskTrendSnapshot {
+  id         String   @id @default(cuid())
+  orgId      String
+  riskId     String
+  score      Int
+  capturedAt DateTime @default(now())
+
+  org  Organization @relation(fields: [orgId], references: [id])
+  risk Risk         @relation(fields: [riskId], references: [id])
+
+  @@index([orgId, capturedAt])
+  @@index([orgId, riskId, capturedAt])
+}
+
+model ControlEffectiveness {
+  id        String   @id @default(cuid())
+  orgId     String
+  controlId String
+  score     Float
+  updatedAt DateTime @updatedAt
+
+  org     Organization @relation(fields: [orgId], references: [id])
+  control Control      @relation(fields: [controlId], references: [id])
+
+  @@unique([orgId, controlId])
+  @@index([orgId, updatedAt])
+}
+
+model AuditAssignment {
+  id         String                @id @default(cuid())
+  orgId      String
+  controlId  String?
+  riskId     String?
+  assignedTo String
+  status     AuditAssignmentStatus @default(OPEN)
+  dueDate    DateTime?
+  createdAt  DateTime              @default(now())
+  updatedAt  DateTime              @updatedAt
+
+  org          Organization @relation(fields: [orgId], references: [id])
+  control      Control?     @relation(fields: [controlId], references: [id])
+  risk         Risk?        @relation(fields: [riskId], references: [id])
+  assignedUser User         @relation("AuditAssignmentAssignee", fields: [assignedTo], references: [id])
+  comments     AuditComment[]
+
+  @@index([orgId, status, dueDate])
+  @@index([orgId, assignedTo])
+  @@index([controlId])
+  @@index([riskId])
+}
+
+model AuditComment {
+  id              String   @id @default(cuid())
+  orgId           String
+  assignmentId    String
+  authorId        String
+  message         String
+  parentCommentId String?
+  createdAt       DateTime @default(now())
+
+  org          Organization   @relation(fields: [orgId], references: [id])
+  assignment   AuditAssignment @relation(fields: [assignmentId], references: [id])
+  author       User           @relation("AuditCommentAuthor", fields: [authorId], references: [id])
+  parentComment AuditComment? @relation("AuditCommentThread", fields: [parentCommentId], references: [id])
+  replies       AuditComment[] @relation("AuditCommentThread")
+
+  @@index([orgId, assignmentId, createdAt])
+  @@index([parentCommentId])
+}

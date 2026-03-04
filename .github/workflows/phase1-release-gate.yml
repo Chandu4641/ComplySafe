@@ -1,0 +1,75 @@
+name: Phase 1 Release Gate
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+
+concurrency:
+  group: phase1-release-gate-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  release-gate:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: true
+
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: complysafe
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U postgres"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
+    env:
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/complysafe
+      NEXT_PUBLIC_APP_NAME: ComplySafe
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Prisma generate
+        run: npx prisma generate
+
+      - name: Prisma validate
+        run: npx prisma validate
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Build
+        run: npm run build
+
+      - name: Phase 1 static verifier
+        run: npm run phase1:verify
+
+      - name: Phase 1 regression verifier
+        run: npm run phase1:regression
+
+      - name: Phase 1 closure verifier (strict)
+        run: npm run phase1:closure -- --strict
+
+      - name: Upload Phase 1 verification artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase1-verification-evidence
+          path: docs/verification/

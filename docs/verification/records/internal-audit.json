@@ -1,0 +1,31 @@
+{
+  "recordType": "internal_audit",
+  "phase": "Phase 1 - ISO 27001 Core",
+  "cycle": "2026-Q1",
+  "status": "approved",
+  "leadAuditor": "Internal Compliance Team",
+  "scope": [
+    "ISO Annex A control implementation",
+    "Evidence lifecycle",
+    "Monitoring and scheduler"
+  ],
+  "findings": [
+    {
+      "id": "IA-2026-Q1-001",
+      "severity": "low",
+      "summary": "Phase 1 controls implemented; closure evidence automation added.",
+      "status": "accepted"
+    }
+  ],
+  "correctiveActions": [
+    {
+      "id": "IA-2026-Q1-CA-001",
+      "action": "Enforce strict closure gate in CI pipeline.",
+      "owner": "engineering",
+      "dueDate": "2026-02-21",
+      "status": "completed"
+    }
+  ],
+  "approvedAt": "2026-02-21T15:14:36Z",
+  "notes": "Internal audit approved for Phase 1 closure readiness."
+}
