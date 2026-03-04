@@ -35,14 +35,10 @@ function toCsv(
 export async function GET(request: Request) {
   const session = await getSession();
   if (!session) {
-    return NextResponse.json(
-      { error: "Unauthorized" },
-      { status: 401 }
-    );
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   await ensurePhase2FrameworkCatalogs();
-
   const report = await buildSoc2CoverageReport(session.orgId);
 
   const url = new URL(request.url);
@@ -54,16 +50,13 @@ export async function GET(request: Request) {
     return new NextResponse(toCsv(report), {
       headers: {
         "content-type": "text/csv; charset=utf-8",
-        "content-disposition":
-          "attachment; filename=soc2-coverage.csv"
+        "content-disposition": "attachment; filename=soc2-coverage.csv"
       }
     });
   }
 
   return NextResponse.json({
     report,
-    readinessPercent:
-      report.readinessDetails.overallReadinessPercent
+    readinessPercent: report.readinessDetails.overallReadinessPercent
   });
 }
-

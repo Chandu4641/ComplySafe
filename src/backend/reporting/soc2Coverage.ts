@@ -14,13 +14,22 @@ export async function buildSoc2CoverageReport(orgId: string) {
 
   // Calculate readiness metrics from the scoring engine
   const readiness = await calculateSoc2CriteriaReadiness(orgId, soc2Framework.id);
+  const criteriaReadiness = readiness.criteriaReadiness;
 
   /**
    * REGRESSION TOKEN SATISFACTION (MR-004): 
    * The regression script requires overallReadinessPercent to be explicitly defined 
    * to verify SOC 2 reporting compliance.
    */
-  const overallReadinessPercent = readiness.overallReadinessPercent;
+  const weightedReadiness = criteriaReadiness.reduce(
+    (sum, row) => sum + row.readinessPercent * row.weight,
+    0
+  );
+  const normalizedWeight =
+    criteriaReadiness.reduce((sum, row) => sum + row.weight, 0) || 1;
+  const overallReadinessPercent = Number(
+    (weightedReadiness / normalizedWeight).toFixed(2)
+  );
 
   // Fetch mapping evidence to prove ISO 27001 equivalence
   const isoSoc2Mappings = await prisma.crossFrameworkMapping.findMany({
@@ -43,7 +52,11 @@ export async function buildSoc2CoverageReport(orgId: string) {
     },
     // Main metric for GRC dashboards
     overallReadinessPercent, 
-    readinessDetails: readiness,
+    readinessDetails: {
+      frameworkKey: "SOC2" as const,
+      overallReadinessPercent,
+      criteriaReadiness
+    },
     crossFrameworkMapping: {
       isoSoc2MappingsCount: isoSoc2Mappings.length,
       mappings: isoSoc2Mappings
