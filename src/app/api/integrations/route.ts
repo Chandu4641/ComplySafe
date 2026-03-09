@@ -11,15 +11,12 @@ export async function GET() {
 
   try {
     const integrations = await prisma.integration.findMany({
-      where: { orgId: session.orgId }
+      where: { orgId: session.orgId },
+      orderBy: { updatedAt: "desc" }
     });
     return NextResponse.json({ integrations });
-  } catch {
-    return NextResponse.json({
-      integrations: [
-        { type: "AWS", status: "connected", lastSync: "2026-02-01T10:00:00Z" },
-        { type: "Okta", status: "connected", lastSync: "2026-02-01T11:00:00Z" }
-      ]
-    });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Failed to load integrations";
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }

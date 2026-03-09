@@ -10,3 +10,7 @@ export function mockEvidence(): EvidenceItem[] {
     { id: "ev_002", controlId: "A.8.1", status: "MISSING" }
   ];
 }
+
+export { collectIntegrationEvidence } from "@/backend/evidence/collector";
+export { validateEvidencePayload } from "@/backend/evidence/validator";
+export { storeAutomatedEvidence } from "@/backend/evidence/storage";

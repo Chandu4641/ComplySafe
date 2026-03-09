@@ -57,6 +57,30 @@ enum AuditAssignmentStatus {
   REJECTED
 }
 
+enum RegulatoryRecordStatus {
+  NEW
+  UPDATED
+  SUPERSEDED
+}
+
+enum RegulatoryChangeType {
+  ADDED
+  MODIFIED
+  REMOVED
+}
+
+enum RegulatoryImpactLevel {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+enum CopilotActionStatus {
+  BLOCKED
+  APPROVAL_REQUIRED
+  EXECUTED
+}
+
 model Organization {
   id                String   @id @default(cuid())
   name              String
@@ -87,6 +111,11 @@ model Organization {
   controlEffectivenesses ControlEffectiveness[]
   auditAssignments       AuditAssignment[]
   auditComments          AuditComment[]
+  regulatorySources      RegulatorySource[]
+  regulatoryRecords      RegulatoryRecord[]
+  regulatoryChangeEvents RegulatoryChangeEvent[]
+  copilotRecommendations CopilotRecommendation[]
+  copilotActionExecutions CopilotActionExecution[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -103,6 +132,7 @@ model User {
   sessions Session[]
   authoredAuditComments  AuditComment[]    @relation("AuditCommentAuthor")
   assignedAuditAssignments AuditAssignment[] @relation("AuditAssignmentAssignee")
+  copilotActionExecutions CopilotActionExecution[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -263,13 +293,34 @@ model RiskFrameworkMapping {
 }
 
 model Integration {
-  id       String   @id @default(cuid())
-  orgId    String
-  type     String
-  status   String
-  lastSync DateTime?
+  id        String   @id @default(cuid())
+  orgId     String
+  type      String
+  provider  String?
+  status    String
+  metadata  Json?
+  lastSync  DateTime?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  org Organization @relation(fields: [orgId], references: [id])
+  org      Organization        @relation(fields: [orgId], references: [id])
+  accounts IntegrationAccount[]
+
+  @@unique([orgId, type])
+}
+
+model IntegrationAccount {
+  id            String @id @default(cuid())
+  integrationId String
+  accountName   String
+  metadata      Json
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  integration Integration @relation(fields: [integrationId], references: [id], onDelete: Cascade)
+
+  @@unique([integrationId, accountName])
+  @@index([integrationId])
 }
 
 model Asset {
@@ -352,6 +403,7 @@ model Evidence {
   controlId       String?
   riskId          String?
   source          String
+  data            Json?
   fileRef         String?
   uploadedBy      String?
   uploadedAt      DateTime       @default(now())
@@ -591,4 +643,107 @@ model AuditComment {
 
   @@index([orgId, assignmentId, createdAt])
   @@index([parentCommentId])
+}
+
+model RegulatorySource {
+  id             String   @id @default(cuid())
+  orgId          String
+  sourceKey      String
+  jurisdiction   String
+  frameworkKey   String
+  sourceUrl      String?
+  status         String   @default("active")
+  lastFetchedAt  DateTime?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  org Organization @relation(fields: [orgId], references: [id])
+  records RegulatoryRecord[]
+
+  @@unique([orgId, sourceKey])
+  @@index([orgId, frameworkKey])
+}
+
+model RegulatoryRecord {
+  id                  String               @id @default(cuid())
+  orgId               String
+  sourceId            String
+  externalId          String
+  jurisdiction        String
+  frameworkKey        String
+  title               String
+  normalizedControlId String
+  versionTag          String
+  effectiveDate       DateTime?
+  status              RegulatoryRecordStatus @default(NEW)
+  metadata            Json?
+  createdAt           DateTime             @default(now())
+  updatedAt           DateTime             @updatedAt
+
+  org Organization @relation(fields: [orgId], references: [id])
+  source RegulatorySource @relation(fields: [sourceId], references: [id])
+  events RegulatoryChangeEvent[]
+
+  @@unique([orgId, sourceId, externalId])
+  @@index([orgId, frameworkKey, normalizedControlId])
+}
+
+model RegulatoryChangeEvent {
+  id          String               @id @default(cuid())
+  orgId       String
+  recordId    String
+  changeType  RegulatoryChangeType
+  changedAt   DateTime
+  summary     String
+  impactLevel RegulatoryImpactLevel
+  payload     Json?
+  createdAt   DateTime             @default(now())
+
+  org Organization @relation(fields: [orgId], references: [id])
+  record RegulatoryRecord @relation(fields: [recordId], references: [id])
+
+  @@index([orgId, changedAt])
+  @@index([recordId])
+}
+
+model CopilotRecommendation {
+  id           String   @id @default(cuid())
+  orgId        String
+  category     String
+  title        String
+  rationale    String
+  actionType   String
+  targetType   String
+  targetId     String
+  justification String
+  confidence   Float
+  generatedAt  DateTime @default(now())
+
+  org Organization @relation(fields: [orgId], references: [id])
+
+  @@index([orgId, generatedAt])
+  @@index([orgId, category])
+}
+
+model CopilotActionExecution {
+  id             String             @id @default(cuid())
+  orgId          String
+  actorId        String?
+  actionType     String
+  targetType     String
+  targetId       String
+  justification  String
+  approved       Boolean            @default(false)
+  status         CopilotActionStatus
+  reason         String
+  recommendationId String?
+  requestPayload Json?
+  responsePayload Json?
+  executedAt     DateTime           @default(now())
+
+  org Organization @relation(fields: [orgId], references: [id])
+  actor User?      @relation(fields: [actorId], references: [id])
+
+  @@index([orgId, executedAt])
+  @@index([orgId, status])
 }

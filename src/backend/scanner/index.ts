@@ -18,3 +18,5 @@ export function runMockScan(): Finding[] {
     }
   ];
 }
+
+export { runAttackSurfaceScan } from "@/backend/scanner/report";

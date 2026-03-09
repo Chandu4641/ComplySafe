@@ -1,6 +1,6 @@
 # Phase Matrix
 
-Date: 2026-03-01
+Date: 2026-03-04
 
 ## Phase Completion Matrix
 
@@ -9,8 +9,8 @@ Date: 2026-03-01
 | Phase 1 | Closed | 2026-02-24 |
 | Phase 2 | Closed | 2026-02-24 |
 | Phase 3 | Closed | 2026-03-01 |
-| Phase 4 | Pending | — |
-| Phase 5 | Pending | — |
+| Phase 4 | Pending Runtime Validation | — |
+| Phase 5 | Pending Runtime Validation | — |
 
 ## Phase 1: ISO Core
 - ISO/IEC 27001 automation core only
@@ -27,8 +27,8 @@ Date: 2026-03-01
 - Continuous compliance intelligence and operational insights
 - Status: closed (2026-03-01)
 
-## Phase 4: Regulatory Ingestion Engine
-- Regulatory ingestion, normalization, and change tracking
+## Phase 4: Compliance Automation Platform
+- Integration-driven control automation, evidence collection, scanning, risk creation, and dashboarding
 - Status: pending
 
 ## Phase 5: AI Automation + Co-Pilot

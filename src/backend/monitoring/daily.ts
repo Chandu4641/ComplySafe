@@ -16,23 +16,19 @@ function nextReviewCutoff(date: Date, frequency: "MONTHLY" | "QUARTERLY" | "SEMI
 export async function runDailyMonitoring(orgId: string) {
   const runDate = startOfUtcDay();
 
-  const existing = await prisma.monitoringRun.findUnique({
-    where: { orgId_runDate: { orgId, runDate } }
+  const run = await prisma.monitoringRun.upsert({
+    where: { orgId_runDate: { orgId, runDate } },
+    update: {},
+    create: {
+      orgId,
+      runDate,
+      status: "running"
+    }
   });
 
-  if (existing?.status === "completed") {
-    return { skipped: true, runId: existing.id };
+  if (run.status === "completed") {
+    return { skipped: true, runId: run.id };
   }
-
-  const run =
-    existing ??
-    (await prisma.monitoringRun.create({
-      data: {
-        orgId,
-        runDate,
-        status: "running"
-      }
-    }));
 
   const frameworks = await prisma.organizationFramework.findMany({
     where: { organizationId: orgId, enabled: true },
