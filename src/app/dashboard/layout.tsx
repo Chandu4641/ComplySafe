@@ -1,5 +1,4 @@
 import { requireSession } from "@/backend/auth/guard";
-import { runMonitoringScheduler } from "@/backend/monitoring/scheduler";
 import Image from "next/image";
 
 export default async function DashboardLayout({
@@ -8,9 +7,6 @@ export default async function DashboardLayout({
   children: React.ReactNode;
 }) {
   const session = await requireSession();
-  if (process.env.NODE_ENV === "production") {
-    await runMonitoringScheduler().catch(() => null);
-  }
   return (
     <div className="dashboard-shell">
       <aside className="sidebar">
