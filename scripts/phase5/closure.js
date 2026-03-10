@@ -73,7 +73,8 @@ function run() {
   );
 
   const ciTokens = [
-    "npx prisma validate",
+    "npm install",
+    "npx prisma generate",
     "npm run lint",
     "npm run build",
     "npm run phase5:verify",
@@ -113,7 +114,7 @@ function run() {
   fs.writeFileSync(outPath, `${JSON.stringify(report, null, 2)}\n`);
   const mirrorPath = path.join(root, "docs", "phase5-closure-status.json");
   const mirror = {
-    phase: "Phase 5 — AI Automation + Co-Pilot",
+    phase: "Phase 5 — AI Compliance Operating System",
     status,
     updatedAt: report.generatedAt,
     sourceOfTruth: "docs/verification/phase5-closure-status.json",

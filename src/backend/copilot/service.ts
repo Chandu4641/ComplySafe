@@ -1,6 +1,9 @@
 import { CopilotActionStatus, Prisma } from "@prisma/client";
 import { prisma } from "@/backend/db/client";
-import { evaluateCopilotAction, type CopilotAction } from "@/backend/copilot/policy";
+import { type CopilotAction } from "@/backend/copilot/policy";
+import { buildCopilotContext } from "@/backend/copilot/context";
+import { enforceCopilotActionGuardrails } from "@/backend/copilot/guardrails";
+import { executeApprovedCopilotAction } from "@/backend/copilot/actions";
 
 export type CopilotRecommendation = {
   id: string;
@@ -44,6 +47,7 @@ export async function getCopilotRecommendations(
   orgId: string,
   params?: { category?: string }
 ) {
+  const context = await buildCopilotContext(orgId);
   const [controls, risks] = await Promise.all([
     prisma.control.findMany({
       where: { orgId },
@@ -116,6 +120,7 @@ export async function getCopilotRecommendations(
   return {
     generatedAt: new Date().toISOString(),
     count: recommendations.length,
+    context,
     recommendations
   };
 }
@@ -128,7 +133,7 @@ export async function executeCopilotAction(params: {
   recommendationId?: string | null;
 }) {
   const { orgId, actorId, action, approved, recommendationId } = params;
-  const decision = evaluateCopilotAction(action);
+  const decision = enforceCopilotActionGuardrails({ action, approved });
 
   let status: CopilotActionStatus;
   type CopilotExecutionResult =
@@ -154,78 +159,13 @@ export async function executeCopilotAction(params: {
     status = CopilotActionStatus.EXECUTED;
     try {
       await prisma.$transaction(async (tx) => {
-        if (action.targetType === "control") {
-          const control = await tx.control.findFirst({
-            where: { id: action.targetId, orgId },
-            select: { id: true }
-          });
-          if (!control) {
-            throw new Error("Control target not found in tenant scope");
-          }
-        }
-
-        if (action.targetType === "risk") {
-          const risk = await tx.risk.findFirst({
-            where: { id: action.targetId, orgId },
-            select: { id: true }
-          });
-          if (!risk) {
-            throw new Error("Risk target not found in tenant scope");
-          }
-        }
-
-        if (action.type === "create_task") {
-          await tx.task.create({
-            data: {
-              orgId,
-              title: `Copilot: ${action.justification}`,
-              status: "OPEN"
-            }
-          });
-        }
-
-        if (action.type === "assign_owner") {
-          if (action.targetType === "control") {
-            await tx.control.update({
-              where: { id: action.targetId },
-              data: { owner: actorId || "copilot" }
-            });
-          }
-          if (action.targetType === "risk") {
-            await tx.risk.update({
-              where: { id: action.targetId },
-              data: { owner: actorId || "copilot" }
-            });
-          }
-        }
-
-        if (action.type === "mark_exception") {
-          if (action.targetType !== "risk") {
-            throw new Error("mark_exception is only supported for risk targets");
-          }
-          await tx.risk.update({
-            where: { id: action.targetId },
-            data: {
-              status: "ACCEPTED",
-              acceptedReason: action.justification,
-              reviewedAt: new Date()
-            }
-          });
-        }
-
-        await tx.auditLog.create({
-          data: {
-            orgId,
-            actorId: actorId || null,
-            action: "COPILOT_ACTION_EXECUTED",
-            targetType: action.targetType,
-            targetId: action.targetId,
-            metadata: {
-              actionType: action.type,
-              approved,
-              recommendationId
-            } as Prisma.InputJsonValue
-          }
+        await executeApprovedCopilotAction({
+          tx,
+          orgId,
+          actorId,
+          action,
+          approved,
+          recommendationId
         });
       });
 

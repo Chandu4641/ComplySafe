@@ -1,58 +1,40 @@
 {
-  "phase": "Phase 5 - AI Automation + Co-Pilot",
-  "lastUpdated": "2026-03-04",
+  "phase": "Phase 5 - AI Compliance Operating System",
+  "lastUpdated": "2026-03-09",
   "owner": "engineering",
   "suites": [
     {
-      "suite": "Copilot guardrails and policy",
+      "suite": "Copilot intelligence and guardrails",
       "checks": [
         {
           "id": "P5-CP-001",
-          "description": "Copilot policy enforces approval boundary",
+          "description": "Copilot guardrails enforce approval boundary",
           "type": "fileContainsAll",
-          "file": "src/backend/copilot/policy.ts",
-          "tokens": ["evaluateCopilotAction", "requiresApproval", "mark_exception"]
+          "file": "src/backend/copilot/guardrails.ts",
+          "tokens": ["enforceCopilotActionGuardrails", "requireHumanApprovalForSensitiveAction", "Human approval is required"]
         },
         {
           "id": "P5-CP-002",
-          "description": "Copilot service exposes recommendations and guarded execution",
+          "description": "Copilot service uses context and guardrails",
           "type": "fileContainsAll",
           "file": "src/backend/copilot/service.ts",
-          "tokens": ["getCopilotRecommendations", "executeCopilotAction", "copilotActionExecution.create"]
+          "tokens": ["buildCopilotContext", "enforceCopilotActionGuardrails", "executeApprovedCopilotAction"]
         },
         {
           "id": "P5-CP-003",
-          "description": "Copilot recommendations endpoint is available",
+          "description": "Copilot query API supports control explanations",
           "type": "fileContainsAll",
-          "file": "src/app/api/copilot/recommendations/route.ts",
-          "tokens": ["getCopilotRecommendations", "Unauthorized", "NextResponse.json"]
+          "file": "src/app/api/copilot/query/route.ts",
+          "tokens": ["generateCopilotExplanation", "query is required", "Unauthorized"]
         },
         {
           "id": "P5-CP-004",
-          "description": "Copilot actions endpoint enforces action input",
-          "type": "fileContainsAll",
-          "file": "src/app/api/copilot/actions/route.ts",
-          "tokens": ["executeCopilotAction", "action is required", "action.targetId is required"]
-        }
-      ]
-    },
-    {
-      "suite": "Regression simulations",
-      "checks": [
-        {
-          "id": "P5-RG-001",
           "description": "Guardrail smoke simulation passes",
           "type": "scriptExitZero",
           "script": "scripts/phase5/simulations/guardrail-smoke.js"
         },
         {
-          "id": "P5-RG-002",
-          "description": "Recommendation smoke simulation passes",
-          "type": "scriptExitZero",
-          "script": "scripts/phase5/simulations/recommendation-smoke.js"
-        },
-        {
-          "id": "P5-RG-003",
+          "id": "P5-CP-005",
           "description": "Action execution smoke simulation passes",
           "type": "scriptExitZero",
           "script": "scripts/phase5/simulations/action-exec-smoke.js"
@@ -60,28 +42,106 @@
       ]
     },
     {
-      "suite": "Release gate and governance",
+      "suite": "AI policy evidence and audit assistants",
       "checks": [
         {
-          "id": "P5-GV-001",
+          "id": "P5-AI-001",
+          "description": "Policy AI modules are implemented",
+          "type": "fileContainsAll",
+          "file": "src/backend/policy-ai/generator.ts",
+          "tokens": ["generatePolicyDraft", "frameworkKey", "templateKey"]
+        },
+        {
+          "id": "P5-AI-002",
+          "description": "Policies generate API uses AI generator and review",
+          "type": "fileContainsAll",
+          "file": "src/app/api/policies/generate/route.ts",
+          "tokens": ["generatePolicyDraft", "reviewPolicyDraft", "preview"]
+        },
+        {
+          "id": "P5-AI-003",
+          "description": "Evidence AI review API exists",
+          "type": "fileContainsAll",
+          "file": "src/app/api/evidence/ai-review/route.ts",
+          "tokens": ["validateEvidenceWithAi", "evidenceId is required", "Evidence not found"]
+        },
+        {
+          "id": "P5-AI-004",
+          "description": "Audit AI assistant API exists",
+          "type": "fileContainsAll",
+          "file": "src/app/api/audit/assistant/route.ts",
+          "tokens": ["runAuditAssistant", "Unauthorized"]
+        },
+        {
+          "id": "P5-AI-005",
+          "description": "Recommendation smoke simulation passes",
+          "type": "scriptExitZero",
+          "script": "scripts/phase5/simulations/recommendation-smoke.js"
+        },
+        {
+          "id": "P5-AI-006",
+          "description": "Policy AI smoke simulation passes",
+          "type": "scriptExitZero",
+          "script": "scripts/phase5/simulations/policy-ai-smoke.js"
+        },
+        {
+          "id": "P5-AI-007",
+          "description": "Evidence AI smoke simulation passes",
+          "type": "scriptExitZero",
+          "script": "scripts/phase5/simulations/evidence-ai-smoke.js"
+        }
+      ]
+    },
+    {
+      "suite": "Regulatory intelligence and enterprise reporting",
+      "checks": [
+        {
+          "id": "P5-RR-001",
+          "description": "Regulatory ingestion module exists",
+          "type": "fileContainsAll",
+          "file": "src/backend/regulatory/ingestion.ts",
+          "tokens": ["ingestRegulatoryUpdates", "DEFAULT_REGULATORY_FEED", "regulatoryChangeEvent.upsert"]
+        },
+        {
+          "id": "P5-RR-002",
+          "description": "Regulatory timeline API exists",
+          "type": "fileContainsAll",
+          "file": "src/app/api/regulatory/timeline/route.ts",
+          "tokens": ["getRegulatoryTimeline", "Unauthorized"]
+        },
+        {
+          "id": "P5-RR-003",
+          "description": "Enterprise reporting API supports JSON CSV and PDF",
+          "type": "fileContainsAll",
+          "file": "src/app/api/reports/enterprise/route.ts",
+          "tokens": ["buildEnterpriseReports", "format", "text/csv", "application/pdf"]
+        },
+        {
+          "id": "P5-RR-004",
           "description": "Phase 5 scripts are registered",
           "type": "fileContainsAll",
           "file": "package.json",
           "tokens": ["phase5:verify", "phase5:regression", "phase5:closure"]
         },
         {
-          "id": "P5-GV-002",
-          "description": "Phase matrix tracks Phase 5",
-          "type": "fileContainsAll",
-          "file": "docs/verification/phase-matrix.md",
-          "tokens": ["Phase 5", "AI Automation + Co-Pilot"]
-        },
-        {
-          "id": "P5-GV-003",
+          "id": "P5-RR-005",
           "description": "Phase 5 release gate workflow executes verification and closure",
           "type": "fileContainsAll",
           "file": ".github/workflows/phase5-release-gate.yml",
           "tokens": ["npm run phase5:verify", "npm run phase5:regression", "npm run phase5:closure -- --strict", "actions/upload-artifact@v4"]
+        },
+        {
+          "id": "P5-RR-006",
+          "description": "Phase matrix tracks Phase 5 AI operating system scope",
+          "type": "fileContainsAll",
+          "file": "docs/verification/phase-matrix.md",
+          "tokens": ["Phase 5", "AI Compliance Operating System"]
+        },
+        {
+          "id": "P5-RR-007",
+          "description": "Regulatory timeline smoke simulation passes",
+          "type": "scriptExitZero",
+          "script": "scripts/phase5/simulations/regulatory-timeline-smoke.js"
         }
       ]
     }

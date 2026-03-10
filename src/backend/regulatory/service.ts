@@ -4,6 +4,8 @@ import {
   RegulatoryImpactLevel,
   RegulatoryRecordStatus
 } from "@prisma/client";
+import { ingestRegulatoryUpdates } from "@/backend/regulatory/ingestion";
+import { computeRegulatoryImpactSignal } from "@/backend/regulatory/impact";
 
 type SeedRecord = {
   externalId: string;
@@ -73,6 +75,8 @@ function canonicalControlId(controlId?: string | null) {
 }
 
 export async function syncRegulatoryFeed(orgId: string) {
+  await ingestRegulatoryUpdates(orgId);
+
   for (const seed of PHASE4_SEED_RECORDS) {
     const source = await prisma.regulatorySource.upsert({
       where: {
@@ -232,6 +236,6 @@ export async function getRegulatoryImpactReport(
     impactedControls: impacted.map((record) => record.normalizedControlId),
     impactedRecords: impacted,
     impactedEvents,
-    riskSignal: highImpactCount > 0 ? "elevated" : "stable"
+    riskSignal: highImpactCount > 0 ? "elevated" : computeRegulatoryImpactSignal(impactedEvents)
   };
 }

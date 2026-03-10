@@ -1,10 +1,35 @@
 {
-  "generatedAt": "2026-03-04T00:00:00.000Z",
-  "strict": false,
-  "status": "pending_runtime_validation",
-  "passed": 0,
+  "generatedAt": "2026-03-09T18:57:24.270Z",
+  "strict": true,
+  "status": "closed",
+  "passed": 4,
   "total": 4,
-  "completionPercent": 0,
-  "fullyComplete": false,
-  "results": []
+  "completionPercent": 100,
+  "fullyComplete": true,
+  "results": [
+    {
+      "name": "Static verification gate",
+      "pass": true,
+      "detail": "phase5-verification.json: 10/10 checks passed",
+      "blockers": []
+    },
+    {
+      "name": "Regression matrix",
+      "pass": true,
+      "detail": "3 suites and 19 checks defined",
+      "blockers": []
+    },
+    {
+      "name": "Regression execution report",
+      "pass": true,
+      "detail": "phase5-regression-report.json: 19/19 checks passed",
+      "blockers": []
+    },
+    {
+      "name": "CI sign-off evidence",
+      "pass": true,
+      "detail": "Workflow executes Phase 5 gate and publishes evidence artifacts",
+      "blockers": []
+    }
+  ]
 }
