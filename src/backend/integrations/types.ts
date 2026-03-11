@@ -1,4 +1,4 @@
-export type IntegrationProvider = "AWS" | "GITHUB" | "OKTA" | "GOOGLE_WORKSPACE" | "AZURE";
+export type IntegrationProvider = "AWS" | "GITHUB" | "OKTA" | "GOOGLE_WORKSPACE" | "AZURE" | "SNYK" | "WIZ" | "CROWDSTRIKE" | "MICROSOFT_TEAMS";
 
 export type IntegrationCheckResult = {
   checkId: string;

@@ -10,6 +10,11 @@ const PROVIDER_ALIASES: Record<string, IntegrationProvider> = {
   GOOGLE_WORKSPACE: "GOOGLE_WORKSPACE",
   GOOGLEWORKSPACE: "GOOGLE_WORKSPACE",
   AZURE: "AZURE",
+  SNYK: "SNYK",
+  WIZ: "WIZ",
+  CROWDSTRIKE: "CROWDSTRIKE",
+  MICROSOFT_TEAMS: "MICROSOFT_TEAMS",
+  TEAMS: "MICROSOFT_TEAMS",
 };
 
 export function normalizeProvider(type: string): IntegrationProvider {

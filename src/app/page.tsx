@@ -1,5 +1,57 @@
 import Image from "next/image";
 
+const pricingPlans = [
+  {
+    name: "Starter",
+    price: "₹9,999",
+    period: "/month",
+    description: "For small teams getting started with compliance",
+    features: [
+      "ISO27001 automation",
+      "Evidence management",
+      "Compliance dashboard",
+      "Basic integrations (AWS, GitHub)",
+      "5 team members"
+    ],
+    cta: "Choose Starter",
+    featured: false
+  },
+  {
+    name: "Growth",
+    price: "₹24,999",
+    period: "/month",
+    description: "For growing companies with multiple compliance needs",
+    features: [
+      "SOC2 & ISO27001 readiness",
+      "Continuous monitoring",
+      "Compliance scanner",
+      "Audit workflows",
+      "API access",
+      "All integrations",
+      "15 team members"
+    ],
+    cta: "Choose Growth",
+    featured: true
+  },
+  {
+    name: "Enterprise",
+    price: "Custom",
+    period: "",
+    description: "For large organizations with complex requirements",
+    features: [
+      "All frameworks (ISO, SOC2, HIPAA, PCI)",
+      "Unlimited integrations",
+      "AI compliance copilot",
+      "Regulatory intelligence",
+      "Dedicated support",
+      "Custom SLA",
+      "Unlimited team members"
+    ],
+    cta: "Talk to sales",
+    featured: false
+  }
+];
+
 export default function HomePage() {
   return (
     <>
@@ -174,41 +226,21 @@ export default function HomePage() {
 
         <section id="pricing" className="section">
           <h2>Pricing</h2>
-          <p className="muted">Sample pricing layout (edit these later).</p>
+          <p className="muted">Choose the plan that fits your compliance needs.</p>
           <div className="pricing-grid">
-            <div className="price-card">
-              <div className="price-tag">Starter</div>
-              <div className="price">₹XX,XXX / month</div>
-              <div className="muted">Short plan summary goes here.</div>
-              <ul className="list compact">
-                <li>Feature placeholder A</li>
-                <li>Feature placeholder B</li>
-                <li>Feature placeholder C</li>
-              </ul>
-              <a className="cta secondary" href="/login">Choose Starter</a>
-            </div>
-            <div className="price-card featured">
-              <div className="price-tag">Growth</div>
-              <div className="price">₹XX,XXX / month</div>
-              <div className="muted">Short plan summary goes here.</div>
-              <ul className="list compact">
-                <li>Feature placeholder A</li>
-                <li>Feature placeholder B</li>
-                <li>Feature placeholder C</li>
-              </ul>
-              <a className="cta" href="/login">Choose Growth</a>
-            </div>
-            <div className="price-card">
-              <div className="price-tag">Enterprise</div>
-              <div className="price">Custom</div>
-              <div className="muted">Short plan summary goes here.</div>
-              <ul className="list compact">
-                <li>Feature placeholder A</li>
-                <li>Feature placeholder B</li>
-                <li>Feature placeholder C</li>
-              </ul>
-              <a className="cta secondary" href="/login">Talk to sales</a>
-            </div>
+            {pricingPlans.map((plan) => (
+              <div key={plan.name} className={`price-card ${plan.featured ? 'featured' : ''}`}>
+                <div className="price-tag">{plan.name}</div>
+                <div className="price">{plan.price}<span className="period">{plan.period}</span></div>
+                <div className="muted">{plan.description}</div>
+                <ul className="list compact">
+                  {plan.features.map((feature) => (
+                    <li key={feature}>{feature}</li>
+                  ))}
+                </ul>
+                <a className={`cta ${plan.featured ? '' : 'secondary'}`} href="/login">{plan.cta}</a>
+              </div>
+            ))}
           </div>
         </section>
 
