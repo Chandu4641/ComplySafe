@@ -1,3 +1,5 @@
+"use client";
+
 import WorkflowStepper from "@/components/workflow/WorkflowStepper";
 
 export default function WorkflowLayout({
