@@ -62,8 +62,10 @@ export default function HomePage() {
             alt="ComplySafe logo"
             width={260}
             height={80}
+            sizes="(max-width: 768px) 170px, 260px"
             className="logo-image"
             priority
+            style={{ borderRadius: "8px" }}
           />
         </div>
         <div className="nav-links">

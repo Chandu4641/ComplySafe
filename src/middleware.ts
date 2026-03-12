@@ -22,7 +22,9 @@ export function middleware(request: NextRequest) {
     "/readiness",
     "/frameworks",
     "/integrations",
-    "/onboarding"
+    "/onboarding",
+    "/copilot",
+    "/regulatory"
   ];
   
   // Public paths that don't require authentication
@@ -63,6 +65,8 @@ export const config = {
     "/readiness/:path*",
     "/frameworks/:path*",
     "/integrations/:path*",
-    "/onboarding"
+    "/onboarding",
+    "/copilot/:path*",
+    "/regulatory/:path*"
   ]
 };

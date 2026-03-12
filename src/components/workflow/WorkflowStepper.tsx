@@ -11,11 +11,13 @@ interface Step {
 
 const steps: Step[] = [
   { id: "signup", label: "Company Signup", href: "/onboarding" },
-  { id: "frameworks", label: "Framework Selection", href: "/frameworks" },
+  { id: "frameworks", label: "Frameworks", href: "/frameworks" },
   { id: "integrations", label: "Integrations", href: "/integrations" },
-  { id: "controls", label: "Control Monitoring", href: "/controls" },
-  { id: "evidence", label: "Evidence Collection", href: "/evidence" },
-  { id: "readiness", label: "Compliance Dashboard", href: "/readiness" },
+  { id: "controls", label: "Controls", href: "/controls" },
+  { id: "evidence", label: "Evidence", href: "/evidence" },
+  { id: "readiness", label: "Dashboard", href: "/readiness" },
+  { id: "regulatory", label: "Regulatory", href: "/regulatory" },
+  { id: "copilot", label: "AI Copilot", href: "/copilot" },
 ];
 
 interface WorkflowStepperProps {

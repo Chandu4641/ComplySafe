@@ -16,8 +16,10 @@ export default async function DashboardLayout({
             alt="ComplySafe logo"
             width={220}
             height={68}
+            sizes="220px"
             className="logo-image"
             priority
+            style={{ borderRadius: "8px" }}
           />
         </div>
         <div style={{ marginTop: 8 }} className="muted">{session.org.name}</div>
