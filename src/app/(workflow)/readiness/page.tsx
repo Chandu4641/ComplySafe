@@ -22,18 +22,45 @@ export default function ReadinessPage() {
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState<Stats>({ coverage: 0, openRisks: 0, evidence: 0 });
   const [frameworks, setFrameworks] = useState<Framework[]>([]);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     async function fetchData() {
       try {
-        // Fetch stats
-        const [statsRes, frameworksRes] = await Promise.all([
-          fetch("/api/dashboard/compliance"),
-          fetch("/api/frameworks")
-        ]);
+        // Fetch stats and frameworks with individual error handling
+        let statsData = { coverage: 0, openRisks: 0, evidence: 0 };
+        let frameworksData = { frameworks: [] };
+        let hasError = false;
+        
+        // Fetch stats - handle failure gracefully
+        try {
+          const statsRes = await fetch("/api/dashboard/compliance");
+          if (statsRes.ok) {
+            statsData = await statsRes.json();
+          } else {
+            hasError = true;
+          }
+        } catch (statsError) {
+          console.error("Failed to fetch compliance stats:", statsError);
+          hasError = true;
+        }
+        
+        // Fetch frameworks - handle failure gracefully
+        try {
+          const frameworksRes = await fetch("/api/frameworks");
+          if (frameworksRes.ok) {
+            frameworksData = await frameworksRes.json();
+          } else {
+            hasError = true;
+          }
+        } catch (frameworksError) {
+          console.error("Failed to fetch frameworks:", frameworksError);
+          hasError = true;
+        }
 
-        const statsData = await statsRes.json();
-        const frameworksData = await frameworksRes.json();
+        if (hasError) {
+          setError("Failed to load some compliance data. Please refresh to try again.");
+        }
 
         setStats({
           coverage: statsData.coverage || 0,
@@ -44,6 +71,7 @@ export default function ReadinessPage() {
         setFrameworks(frameworksData.frameworks || []);
       } catch (err) {
         console.error("Failed to load data", err);
+        setError("Failed to load compliance data. Please refresh to try again.");
       } finally {
         setLoading(false);
       }
@@ -81,6 +109,33 @@ export default function ReadinessPage() {
 
   return (
     <div className="readiness-page">
+      {error && (
+        <div className="error-banner" style={{ 
+          padding: "12px 16px", 
+          backgroundColor: "#fef2f2", 
+          border: "1px solid #fecaca", 
+          borderRadius: "6px",
+          marginBottom: "16px",
+          color: "#dc2626",
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center"
+        }}>
+          <span>{error}</span>
+          <button 
+            onClick={() => setError(null)}
+            style={{ 
+              background: "none", 
+              border: "none", 
+              cursor: "pointer",
+              color: "#dc2626",
+              fontSize: "16px"
+            }}
+          >
+            ×
+          </button>
+        </div>
+      )}
       <div className="page-header">
         <h2>Compliance Readiness Dashboard</h2>
         <p className="muted">

@@ -5,12 +5,29 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/backend/db/client";
 import { createSession } from "@/backend/auth/session";
 
+// Email validation regex pattern
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+function isValidEmail(email: string): boolean {
+  return EMAIL_REGEX.test(email);
+}
+
 export async function POST(request: Request) {
   const body = await request.json().catch(() => ({}));
-  const email = String(body.email ?? "").toLowerCase();
-  const orgName = String(body.orgName ?? "");
+  const emailInput = body.email ?? "";
+  const orgName = String(body.orgName ?? "").trim();
 
-  if (!email || !orgName) {
+  // Validate email format
+  if (!emailInput || typeof emailInput !== "string") {
+    return NextResponse.json({ error: "Email is required." }, { status: 400 });
+  }
+  
+  const email = emailInput.toLowerCase().trim();
+  if (!isValidEmail(email)) {
+    return NextResponse.json({ error: "Invalid email format." }, { status: 400 });
+  }
+
+  if (!orgName) {
     return NextResponse.json({ error: "Email and company are required." }, { status: 400 });
   }
 

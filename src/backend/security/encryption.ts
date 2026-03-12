@@ -23,10 +23,18 @@ function getMasterKey(): Buffer {
     throw new Error("ENCRYPTION_MASTER_KEY environment variable must be set in production");
   }
   
+  // Check for fallback secret - must be explicitly set in non-production environments
+  let fallbackSecret = process.env.ENCRYPTION_FALLBACK_SECRET;
+  
+  // DEPRECATION WARNING: Fallback default will be removed in a future version
+  if (!fallbackSecret) {
+    console.warn("WARNING: Using default fallback secret for encryption. This is deprecated and will be removed. Please set ENCRYPTION_FALLBACK_SECRET in your environment.");
+    fallbackSecret = "complysafe-dev-secret-change-in-production";
+  }
+  
   // Fallback for development only - use a derived key from a secret
   // SECURITY WARNING: This fallback must NEVER be used in production!
   // Ensure ENCRYPTION_MASTER_KEY is set in production environment variables.
-  const fallbackSecret = process.env.ENCRYPTION_FALLBACK_SECRET || "complysafe-dev-secret-change-in-production";
   return crypto.pbkdf2Sync(fallbackSecret, "complysafe-salt", ITERATIONS, KEY_LENGTH, "sha256");
 }
 

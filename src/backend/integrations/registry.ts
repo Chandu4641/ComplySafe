@@ -19,7 +19,29 @@ const PROVIDER_ALIASES: Record<string, IntegrationProvider> = {
 
 export function normalizeProvider(type: string): IntegrationProvider {
   const normalized = type.toUpperCase().replace(/[\s-]/g, "_");
-  return PROVIDER_ALIASES[normalized] ?? "AWS";
+  const provider = PROVIDER_ALIASES[normalized];
+  
+  if (!provider) {
+    // DEPRECATION WARNING: Defaulting to AWS for unknown providers
+    // This behavior will be removed in a future version
+    console.warn(`WARNING: Unknown integration provider "${type}". Defaulting to AWS. This is deprecated and will throw an error in future versions. Supported providers: ${Object.keys(PROVIDER_ALIASES).join(", ")}`);
+    return "AWS";
+  }
+  
+  return provider;
+}
+
+/**
+ * Validate that an integration provider exists in the registry
+ * Returns true if valid, false otherwise
+ */
+export function isValidProvider(type: string): boolean {
+  try {
+    normalizeProvider(type);
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 export async function runIntegrationSync(type: string, orgId: string) {

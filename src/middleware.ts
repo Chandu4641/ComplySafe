@@ -14,7 +14,33 @@ export function middleware(request: NextRequest) {
     return NextResponse.redirect(httpsUrl);
   }
 
-  if (!pathname.startsWith("/dashboard")) {
+  // Check if path requires authentication
+  const protectedPaths = [
+    "/dashboard",
+    "/controls",
+    "/evidence",
+    "/readiness",
+    "/frameworks",
+    "/integrations",
+    "/onboarding"
+  ];
+  
+  // Public paths that don't require authentication
+  const publicPaths = [
+    "/login",
+    "/api/auth/login",
+    "/api/auth/logout",
+    "/"
+  ];
+  
+  // Check if path is explicitly public
+  const isPublicPath = publicPaths.some(path => pathname === path || pathname.startsWith(path + "/"));
+  if (isPublicPath) {
+    return NextResponse.next();
+  }
+  
+  const requiresAuth = protectedPaths.some(path => pathname.startsWith(path));
+  if (!requiresAuth) {
     return NextResponse.next();
   }
 
@@ -30,5 +56,13 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/dashboard/:path*"]
+  matcher: [
+    "/dashboard/:path*",
+    "/controls/:path*",
+    "/evidence/:path*",
+    "/readiness/:path*",
+    "/frameworks/:path*",
+    "/integrations/:path*",
+    "/onboarding"
+  ]
 };
