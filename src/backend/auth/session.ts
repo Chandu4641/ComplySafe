@@ -27,8 +27,7 @@ export async function createSession(userId: string, orgId: string) {
     await prisma.session.create({
       data: { userId, orgId, token, expiresAt }
     });
-  } catch (error) {
-    console.error("Failed to create session in database:", error);
+  } catch {
     return null;
   }
 
@@ -40,8 +39,7 @@ export async function createSession(userId: string, orgId: string) {
       path: "/",
       expires: expiresAt
     });
-  } catch (error) {
-    console.error("Failed to set cookie:", error);
+  } catch {
     return null;
   }
 
