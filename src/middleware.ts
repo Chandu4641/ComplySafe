@@ -14,6 +14,14 @@ export function middleware(request: NextRequest) {
     return NextResponse.redirect(httpsUrl);
   }
 
+  // Add HSTS header for production
+  const response = NextResponse.next();
+  if (!isLocalhost) {
+    response.headers.set("Strict-Transport-Security", "max-age=31536000; includeSubDomains");
+  }
+  
+  return response;
+
   // Check if path requires authentication
   const protectedPaths = [
     "/dashboard",

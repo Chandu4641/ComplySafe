@@ -122,11 +122,12 @@ model Organization {
 }
 
 model User {
-  id       String   @id @default(cuid())
-  email    String   @unique
-  name     String?
-  role     UserRole @default(member)
-  orgId    String
+  id           String   @id @default(cuid())
+  email        String   @unique
+  name         String?
+  passwordHash String?
+  role         UserRole @default(member)
+  orgId        String
 
   org      Organization @relation(fields: [orgId], references: [id])
   sessions Session[]
