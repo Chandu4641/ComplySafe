@@ -1,0 +1,122 @@
+{
+  "generatedAt": "2026-03-09T18:28:46.273Z",
+  "matrixPath": "docs/verification/phase4-regression-matrix.json",
+  "phase": "Phase 4 - Compliance Automation Platform",
+  "passed": 16,
+  "total": 16,
+  "completionPercent": 100,
+  "results": [
+    {
+      "suite": "Integration and monitoring core",
+      "id": "P4-IM-001",
+      "description": "Integration registry supports all Phase 4 providers",
+      "pass": true,
+      "detail": "All tokens present in src/backend/integrations/registry.ts"
+    },
+    {
+      "suite": "Integration and monitoring core",
+      "id": "P4-IM-002",
+      "description": "Monitoring engine executes full automation flow",
+      "pass": true,
+      "detail": "All tokens present in src/backend/monitoring/engine.ts"
+    },
+    {
+      "suite": "Integration and monitoring core",
+      "id": "P4-IM-003",
+      "description": "Monitoring scheduler invokes monitoring engine",
+      "pass": true,
+      "detail": "All tokens present in src/backend/monitoring/scheduler.ts"
+    },
+    {
+      "suite": "Integration and monitoring core",
+      "id": "P4-IM-004",
+      "description": "Integration smoke simulation passes",
+      "pass": true,
+      "detail": "Script exited 0: scripts/phase4/simulations/integration-smoke.js"
+    },
+    {
+      "suite": "Integration and monitoring core",
+      "id": "P4-IM-005",
+      "description": "Monitoring smoke simulation passes",
+      "pass": true,
+      "detail": "Script exited 0: scripts/phase4/simulations/monitoring-smoke.js"
+    },
+    {
+      "suite": "Evidence scanner and risk automation",
+      "id": "P4-ESR-001",
+      "description": "Evidence collector stores JSON payloads",
+      "pass": true,
+      "detail": "All tokens present in src/backend/evidence/storage.ts"
+    },
+    {
+      "suite": "Evidence scanner and risk automation",
+      "id": "P4-ESR-002",
+      "description": "Scanner report combines port TLS and DNS checks",
+      "pass": true,
+      "detail": "All tokens present in src/backend/scanner/report.ts"
+    },
+    {
+      "suite": "Evidence scanner and risk automation",
+      "id": "P4-ESR-002B",
+      "description": "Attack surface scanner API creates findings",
+      "pass": true,
+      "detail": "All tokens present in src/app/api/scanner/attack-surface/route.ts"
+    },
+    {
+      "suite": "Evidence scanner and risk automation",
+      "id": "P4-ESR-003",
+      "description": "Risk engine creates risks and remediation tasks",
+      "pass": true,
+      "detail": "All tokens present in src/backend/risk/engine.ts"
+    },
+    {
+      "suite": "Evidence scanner and risk automation",
+      "id": "P4-ESR-004",
+      "description": "Scanner smoke simulation passes",
+      "pass": true,
+      "detail": "Script exited 0: scripts/phase4/simulations/scanner-smoke.js"
+    },
+    {
+      "suite": "Evidence scanner and risk automation",
+      "id": "P4-ESR-005",
+      "description": "Risk smoke simulation passes",
+      "pass": true,
+      "detail": "Script exited 0: scripts/phase4/simulations/risk-smoke.js"
+    },
+    {
+      "suite": "Dashboard and governance",
+      "id": "P4-DG-001",
+      "description": "Dashboard APIs are available",
+      "pass": true,
+      "detail": "All tokens present in src/backend/dashboard/service.ts"
+    },
+    {
+      "suite": "Dashboard and governance",
+      "id": "P4-DG-002",
+      "description": "Prisma schema includes IntegrationAccount and evidence data field",
+      "pass": true,
+      "detail": "All tokens present in prisma/schema.prisma"
+    },
+    {
+      "suite": "Dashboard and governance",
+      "id": "P4-DG-003",
+      "description": "Phase 4 release gate workflow executes verification and closure",
+      "pass": true,
+      "detail": "All tokens present in .github/workflows/phase4-release-gate.yml"
+    },
+    {
+      "suite": "Dashboard and governance",
+      "id": "P4-DG-004",
+      "description": "Phase matrix tracks Phase 4 automation objective",
+      "pass": true,
+      "detail": "All tokens present in docs/verification/phase-matrix.md"
+    },
+    {
+      "suite": "Dashboard and governance",
+      "id": "P4-DG-005",
+      "description": "Phase 4 scripts are registered",
+      "pass": true,
+      "detail": "All tokens present in package.json"
+    }
+  ]
+}

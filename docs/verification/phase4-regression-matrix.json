@@ -1,0 +1,130 @@
+{
+  "phase": "Phase 4 - Compliance Automation Platform",
+  "lastUpdated": "2026-03-09",
+  "owner": "engineering",
+  "suites": [
+    {
+      "suite": "Integration and monitoring core",
+      "checks": [
+        {
+          "id": "P4-IM-001",
+          "description": "Integration registry supports all Phase 4 providers",
+          "type": "fileContainsAll",
+          "file": "src/backend/integrations/registry.ts",
+          "tokens": ["AWS", "GITHUB", "OKTA", "GOOGLE_WORKSPACE", "AZURE", "runIntegrationSync"]
+        },
+        {
+          "id": "P4-IM-002",
+          "description": "Monitoring engine executes full automation flow",
+          "type": "fileContainsAll",
+          "file": "src/backend/monitoring/engine.ts",
+          "tokens": ["runMonitoringEngine", "collectIntegrationData", "collectIntegrationEvidence", "automateRiskFromControlFailure"]
+        },
+        {
+          "id": "P4-IM-003",
+          "description": "Monitoring scheduler invokes monitoring engine",
+          "type": "fileContainsAll",
+          "file": "src/backend/monitoring/scheduler.ts",
+          "tokens": ["runMonitoringScheduler", "runMonitoringEngine"]
+        },
+        {
+          "id": "P4-IM-004",
+          "description": "Integration smoke simulation passes",
+          "type": "scriptExitZero",
+          "script": "scripts/phase4/simulations/integration-smoke.js"
+        },
+        {
+          "id": "P4-IM-005",
+          "description": "Monitoring smoke simulation passes",
+          "type": "scriptExitZero",
+          "script": "scripts/phase4/simulations/monitoring-smoke.js"
+        }
+      ]
+    },
+    {
+      "suite": "Evidence scanner and risk automation",
+      "checks": [
+        {
+          "id": "P4-ESR-001",
+          "description": "Evidence collector stores JSON payloads",
+          "type": "fileContainsAll",
+          "file": "src/backend/evidence/storage.ts",
+          "tokens": ["storeAutomatedEvidence", "data: params.data", "prisma.evidence.create"]
+        },
+        {
+          "id": "P4-ESR-002",
+          "description": "Scanner report combines port TLS and DNS checks",
+          "type": "fileContainsAll",
+          "file": "src/backend/scanner/report.ts",
+          "tokens": ["scanOpenPorts", "scanTlsConfiguration", "scanDnsAndEmailSecurity", "runAttackSurfaceScan"]
+        },
+        {
+          "id": "P4-ESR-002B",
+          "description": "Attack surface scanner API creates findings",
+          "type": "fileContainsAll",
+          "file": "src/app/api/scanner/attack-surface/route.ts",
+          "tokens": ["runAttackSurfaceScan", "prisma.finding.createMany", "type: \"attack_surface\""]
+        },
+        {
+          "id": "P4-ESR-003",
+          "description": "Risk engine creates risks and remediation tasks",
+          "type": "fileContainsAll",
+          "file": "src/backend/risk/engine.ts",
+          "tokens": ["automateRiskFromControlFailure", "createRisk", "createRemediationTask"]
+        },
+        {
+          "id": "P4-ESR-004",
+          "description": "Scanner smoke simulation passes",
+          "type": "scriptExitZero",
+          "script": "scripts/phase4/simulations/scanner-smoke.js"
+        },
+        {
+          "id": "P4-ESR-005",
+          "description": "Risk smoke simulation passes",
+          "type": "scriptExitZero",
+          "script": "scripts/phase4/simulations/risk-smoke.js"
+        }
+      ]
+    },
+    {
+      "suite": "Dashboard and governance",
+      "checks": [
+        {
+          "id": "P4-DG-001",
+          "description": "Dashboard APIs are available",
+          "type": "fileContainsAll",
+          "file": "src/backend/dashboard/service.ts",
+          "tokens": ["getComplianceDashboard", "getControlDashboard", "getRiskDashboard", "getMonitoringDashboard"]
+        },
+        {
+          "id": "P4-DG-002",
+          "description": "Prisma schema includes IntegrationAccount and evidence data field",
+          "type": "fileContainsAll",
+          "file": "prisma/schema.prisma",
+          "tokens": ["model IntegrationAccount", "provider  String?", "data            Json?"]
+        },
+        {
+          "id": "P4-DG-003",
+          "description": "Phase 4 release gate workflow executes verification and closure",
+          "type": "fileContainsAll",
+          "file": ".github/workflows/phase4-release-gate.yml",
+          "tokens": ["npm run phase4:verify", "npm run phase4:regression", "npm run phase4:closure -- --strict", "actions/upload-artifact@v4"]
+        },
+        {
+          "id": "P4-DG-004",
+          "description": "Phase matrix tracks Phase 4 automation objective",
+          "type": "fileContainsAll",
+          "file": "docs/verification/phase-matrix.md",
+          "tokens": ["Phase 4", "Compliance Automation Platform"]
+        },
+        {
+          "id": "P4-DG-005",
+          "description": "Phase 4 scripts are registered",
+          "type": "fileContainsAll",
+          "file": "package.json",
+          "tokens": ["phase4:verify", "phase4:regression", "phase4:closure"]
+        }
+      ]
+    }
+  ]
+}

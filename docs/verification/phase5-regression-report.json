@@ -1,0 +1,143 @@
+{
+  "generatedAt": "2026-03-11T17:35:49.297Z",
+  "matrixPath": "docs/verification/phase5-regression-matrix.json",
+  "phase": "Phase 5 - AI Compliance Operating System",
+  "passed": 19,
+  "total": 19,
+  "completionPercent": 100,
+  "results": [
+    {
+      "suite": "Copilot intelligence and guardrails",
+      "id": "P5-CP-001",
+      "description": "Copilot guardrails enforce approval boundary",
+      "pass": true,
+      "detail": "All tokens present in src/backend/copilot/guardrails.ts"
+    },
+    {
+      "suite": "Copilot intelligence and guardrails",
+      "id": "P5-CP-002",
+      "description": "Copilot service uses context and guardrails",
+      "pass": true,
+      "detail": "All tokens present in src/backend/copilot/service.ts"
+    },
+    {
+      "suite": "Copilot intelligence and guardrails",
+      "id": "P5-CP-003",
+      "description": "Copilot query API supports control explanations",
+      "pass": true,
+      "detail": "All tokens present in src/app/api/copilot/query/route.ts"
+    },
+    {
+      "suite": "Copilot intelligence and guardrails",
+      "id": "P5-CP-004",
+      "description": "Guardrail smoke simulation passes",
+      "pass": true,
+      "detail": "Script exited 0: scripts/phase5/simulations/guardrail-smoke.js"
+    },
+    {
+      "suite": "Copilot intelligence and guardrails",
+      "id": "P5-CP-005",
+      "description": "Action execution smoke simulation passes",
+      "pass": true,
+      "detail": "Script exited 0: scripts/phase5/simulations/action-exec-smoke.js"
+    },
+    {
+      "suite": "AI policy evidence and audit assistants",
+      "id": "P5-AI-001",
+      "description": "Policy AI modules are implemented",
+      "pass": true,
+      "detail": "All tokens present in src/backend/policy-ai/generator.ts"
+    },
+    {
+      "suite": "AI policy evidence and audit assistants",
+      "id": "P5-AI-002",
+      "description": "Policies generate API uses AI generator and review",
+      "pass": true,
+      "detail": "All tokens present in src/app/api/policies/generate/route.ts"
+    },
+    {
+      "suite": "AI policy evidence and audit assistants",
+      "id": "P5-AI-003",
+      "description": "Evidence AI review API exists",
+      "pass": true,
+      "detail": "All tokens present in src/app/api/evidence/ai-review/route.ts"
+    },
+    {
+      "suite": "AI policy evidence and audit assistants",
+      "id": "P5-AI-004",
+      "description": "Audit AI assistant API exists",
+      "pass": true,
+      "detail": "All tokens present in src/app/api/audit/assistant/route.ts"
+    },
+    {
+      "suite": "AI policy evidence and audit assistants",
+      "id": "P5-AI-005",
+      "description": "Recommendation smoke simulation passes",
+      "pass": true,
+      "detail": "Script exited 0: scripts/phase5/simulations/recommendation-smoke.js"
+    },
+    {
+      "suite": "AI policy evidence and audit assistants",
+      "id": "P5-AI-006",
+      "description": "Policy AI smoke simulation passes",
+      "pass": true,
+      "detail": "Script exited 0: scripts/phase5/simulations/policy-ai-smoke.js"
+    },
+    {
+      "suite": "AI policy evidence and audit assistants",
+      "id": "P5-AI-007",
+      "description": "Evidence AI smoke simulation passes",
+      "pass": true,
+      "detail": "Script exited 0: scripts/phase5/simulations/evidence-ai-smoke.js"
+    },
+    {
+      "suite": "Regulatory intelligence and enterprise reporting",
+      "id": "P5-RR-001",
+      "description": "Regulatory ingestion module exists",
+      "pass": true,
+      "detail": "All tokens present in src/backend/regulatory/ingestion.ts"
+    },
+    {
+      "suite": "Regulatory intelligence and enterprise reporting",
+      "id": "P5-RR-002",
+      "description": "Regulatory timeline API exists",
+      "pass": true,
+      "detail": "All tokens present in src/app/api/regulatory/timeline/route.ts"
+    },
+    {
+      "suite": "Regulatory intelligence and enterprise reporting",
+      "id": "P5-RR-003",
+      "description": "Enterprise reporting API supports JSON CSV and PDF",
+      "pass": true,
+      "detail": "All tokens present in src/app/api/reports/enterprise/route.ts"
+    },
+    {
+      "suite": "Regulatory intelligence and enterprise reporting",
+      "id": "P5-RR-004",
+      "description": "Phase 5 scripts are registered",
+      "pass": true,
+      "detail": "All tokens present in package.json"
+    },
+    {
+      "suite": "Regulatory intelligence and enterprise reporting",
+      "id": "P5-RR-005",
+      "description": "Phase 5 release gate workflow executes verification and closure",
+      "pass": true,
+      "detail": "All tokens present in .github/workflows/phase5-release-gate.yml"
+    },
+    {
+      "suite": "Regulatory intelligence and enterprise reporting",
+      "id": "P5-RR-006",
+      "description": "Phase matrix tracks Phase 5 AI operating system scope",
+      "pass": true,
+      "detail": "All tokens present in docs/verification/phase-matrix.md"
+    },
+    {
+      "suite": "Regulatory intelligence and enterprise reporting",
+      "id": "P5-RR-007",
+      "description": "Regulatory timeline smoke simulation passes",
+      "pass": true,
+      "detail": "Script exited 0: scripts/phase5/simulations/regulatory-timeline-smoke.js"
+    }
+  ]
+}
